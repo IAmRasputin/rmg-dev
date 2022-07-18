@@ -26,7 +26,7 @@ RUN sbcl --load quicklisp.lisp \
          --eval "(quicklisp-quickstart:install)" \
          --quit
 
-RUN mkdir -p ~/.config/nvim/
+RUN mkdir -p /home/rmg/.config/nvim/
 COPY init.vim /home/rmg/.config/nvim/init.vim
 COPY .zshrc ~/.zshrc
 
