@@ -10,7 +10,7 @@ USER rmg
 
 WORKDIR /home/rmg
 
-RUN mkdir -p /home/rmg/.config/nvim/ /home/rmg/.doom.d/
+RUN mkdir -p .config/nvim/ .doom.d/
 
 RUN sudo apt-get update && \
     sudo apt-get install -y neovim \
@@ -21,6 +21,7 @@ RUN sudo apt-get update && \
                             git \
                             emacs \
                             ripgrep \
+                            fzf \
                             findutils
 
 
@@ -32,11 +33,9 @@ RUN sbcl --load quicklisp.lisp \
          --quit
 
 RUN git clone --depth 1 https://github.com/doomemacs/doomemacs /home/rmg/.emacs.d
-RUN /home/rmg/.emacs.d/bin/doom install
-COPY doom/* /home/rmg/.doom.d/
-RUN /home/rmg/.emacs.d/bin/doom sync
+COPY doom/* .doom.d/
 
-COPY init.vim /home/rmg/.config/nvim/init.vim
-COPY .zshrc ~/.zshrc
+COPY init.vim .config/nvim/init.vim
+COPY .zshrc .zshrc
 
 CMD ["/usr/bin/zsh"]
