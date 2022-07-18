@@ -13,8 +13,6 @@ path+=('/home/rmg/Programs/idea-IU-213.6461.79/bin')
 
 export CCL_DEFAULT_DIRECTORY="/home/rmg/.roswell/impls/x86-64/linux/ccl-bin/1.12"
 
-export PATH
-
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
@@ -79,7 +77,7 @@ HIST_STAMPS="mm/dd/yyyy"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git colorize colored-man-pages debian compleat fzf)
+plugins=(git colorize colored-man-pages debian compleat fzf docker)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -93,7 +91,7 @@ source $ZSH/oh-my-zsh.sh
 alias vim='nvim'
 
 # Preferred editor for local and remote sessions
-export EDITOR='vim'
+export EDITOR='nvim'
 
 # Compilation flags
 # export ARCHFLAGS="-arch x86_64"
