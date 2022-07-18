@@ -13,8 +13,20 @@ WORKDIR /home/rmg
 RUN sudo apt-get update && \
     sudo apt-get install -y neovim \
                             zsh \
-                            curl
+                            curl \
+                            sbcl \
+                            tmux
+
 
 RUN sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+
+RUN curl -O https://beta.quicklisp.org/quicklisp.lisp
+RUN sbcl --load quicklisp.lisp \
+         --eval (quicklisp-quickstart:install) \
+         --quit
+
+RUN mkdir ~/.config/nvim/
+COPY init.vim /home/rmg/.config/nvim/init.vim
+COPY .zshrc ~/.zshrc
 
 CMD ["/usr/bin/zsh"]

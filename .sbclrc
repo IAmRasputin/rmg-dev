@@ -1,0 +1,13 @@
+;;; The following lines added by ql:add-to-init-file:
+#-quicklisp
+(let ((quicklisp-init (merge-pathnames "quicklisp/setup.lisp"
+                                       (user-homedir-pathname))))
+  (when (probe-file quicklisp-init)
+    (load quicklisp-init)))
+
+#+quicklisp
+(push #p"~/Documents/Code/Lisp/" ql:*local-project-directories*)
+
+(when (and (interactive-stream-p *terminal-io*) (not (member "--no-linedit" (uiop:command-line-arguments) :test #'equalp)))
+  (ql:quickload :linedit :silent t)
+  (funcall (intern "INSTALL-REPL" :linedit) :wrap-current t :eof-quits t))
