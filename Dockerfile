@@ -15,17 +15,18 @@ RUN sudo apt-get update && \
                             zsh \
                             curl \
                             sbcl \
-                            tmux
+                            tmux \
+                            git
 
 
 RUN sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
 RUN curl -O https://beta.quicklisp.org/quicklisp.lisp
 RUN sbcl --load quicklisp.lisp \
-         --eval (quicklisp-quickstart:install) \
+         --eval "(quicklisp-quickstart:install)" \
          --quit
 
-RUN mkdir ~/.config/nvim/
+RUN mkdir -p ~/.config/nvim/
 COPY init.vim /home/rmg/.config/nvim/init.vim
 COPY .zshrc ~/.zshrc
 
