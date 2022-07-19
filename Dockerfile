@@ -1,4 +1,4 @@
-FROM ubuntu:latest
+FROM ubuntu:devel
 
 RUN apt-get update && apt-get install -y sudo
 RUN adduser --disabled-password --gecos '' rmg
@@ -14,6 +14,7 @@ RUN mkdir -p .config/nvim/ .doom.d/
 
 RUN sudo apt-get update && \
     sudo apt-get install -y neovim \
+                            make \
                             zsh \
                             curl \
                             sbcl \
@@ -22,6 +23,9 @@ RUN sudo apt-get update && \
                             emacs \
                             ripgrep \
                             fzf \
+                            gcc \
+                            g++ \
+                            unzip \
                             findutils
 
 
@@ -36,8 +40,13 @@ RUN git clone --depth 1 https://github.com/doomemacs/doomemacs /home/rmg/.emacs.
 COPY doom/* .doom.d/
 
 COPY init.vim .config/nvim/init.vim
-COPY .zshrc .zshrc
+COPY zshrc .zprofile
 
-RUN chown rmg .zshrc
+RUN sudo curl -fsSL https://deno.land/install.sh | sh
+RUN echo "source ~/.zprofile" > ~/.zshrc
+
+RUN yes | sudo unminimize
+
+RUN nvim --headless +PlugInstall +qa
 
 CMD ["/usr/bin/zsh"]

@@ -15,8 +15,6 @@ if !filereadable(vimplug_exists)
   echo ""
   silent exec "!"curl_exists" -fLo " . shellescape(vimplug_exists) . " --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
   let g:not_finish_vimplug = "yes"
-
-  autocmd VimEnter * PlugInstall
 endif
 
 " Required:
