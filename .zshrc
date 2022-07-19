@@ -79,6 +79,9 @@ HIST_STAMPS="mm/dd/yyyy"
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(git colorize colored-man-pages debian compleat fzf docker)
 
+zstyle ':completion:*:*:docker:*' option-stacking yes
+zstyle ':completion:*:*:docker-*:*' option-stacking yes
+
 source $ZSH/oh-my-zsh.sh
 
 # User configuration

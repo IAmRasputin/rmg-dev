@@ -38,4 +38,6 @@ COPY doom/* .doom.d/
 COPY init.vim .config/nvim/init.vim
 COPY .zshrc .zshrc
 
+RUN chown rmg .zshrc
+
 CMD ["/usr/bin/zsh"]
