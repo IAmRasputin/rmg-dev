@@ -1,5 +1,3 @@
-" vim-bootstrap 2022-07-17 20:34:53
-
 "*****************************************************************************
 "" Vim-Plug core
 "*****************************************************************************
@@ -8,13 +6,15 @@ let curl_exists=expand('curl')
 
 if !filereadable(vimplug_exists)
   if !executable(curl_exists)
-    echoerr "You need curl to install VimPlug"
+    echoerr "You need curl for this.  Come back when you've installed it."
     execute "q!"
   endif
   echo "Installing Vim-Plug..."
   echo ""
   silent exec "!"curl_exists" -fLo " . shellescape(vimplug_exists) . " --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
   let g:not_finish_vimplug = "yes"
+
+  autocmd VimEnter * PlugInstall
 endif
 
 " Required:
@@ -31,17 +31,16 @@ Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'airblade/vim-gitgutter'
 Plug 'vim-scripts/grep.vim'
+Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 Plug 'vim-scripts/CSApprox'
 Plug 'Raimondi/delimitMate'
 Plug 'majutsushi/tagbar'
 Plug 'Yggdroot/indentLine'
 Plug 'tpope/vim-rhubarb' " required by fugitive to :Gbrowse
-Plug 'morhetz/gruvbox'
-Plug 'vim-denops/denops.vim'
-Plug 'skanehira/denops-docker.vim'
+Plug 'tomasiser/vim-code-dark'
+Plug 'dccsillag/magma-nvim', { 'do': ':UpdateRemotePlugins' }
 
-Plug 'nvim-treesitter/nvim-treesitter'
-
+let g:deoplete#enable_at_startup = 1
 
 if isdirectory('/usr/local/opt/fzf')
   Plug '/usr/local/opt/fzf' | Plug 'junegunn/fzf.vim'
@@ -55,31 +54,44 @@ if exists('make')
 endif
 Plug 'Shougo/vimproc.vim', {'do': g:make}
 
+"Plug 'ervandew/supertab'
+
+
+"*****************************************************************************
+"" Custom bundles
+"*****************************************************************************
+
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+
+" python
+"" Python Bundle
+Plug 'davidhalter/jedi-vim'
+Plug 'raimon49/requirements.txt.vim', {'for': 'requirements'}
+
+Plug 'neovim/nvim-lspconfig'
+Plug 'hrsh7th/cmp-nvim-lsp'
+Plug 'hrsh7th/cmp-buffer'
+Plug 'hrsh7th/cmp-path'
+Plug 'hrsh7th/cmp-cmdline'
+Plug 'hrsh7th/nvim-cmp'
+
+Plug 'ray-x/lsp_signature.nvim'
+
+" For vsnip users.
+Plug 'hrsh7th/cmp-vsnip'
+Plug 'hrsh7th/vim-vsnip'
+Plug 'hrsh7th/vim-vsnip-integ'
+Plug 'rafamadriz/friendly-snippets'
+
 call plug#end()
 
+set completeopt=menu,menuone,noselect
+lua require('config')
+
+
+" Required:
 filetype plugin indent on
 
-" lua code to configure treesitter
-lua << EOF
-require'nvim-treesitter.configs'.setup {
-  -- A list of parser names, or "all"
-  ensure_installed = { "python", "commonlisp", "sql", "dockerfile", "julia", "regex", "vim", "lua" },
-
-  -- Install parsers synchronously (only applied to `ensure_installed`)
-  sync_install = false,
-
-  -- Automatically install missing parsers when entering buffer
-  auto_install = true,
-
-  -- List of parsers to ignore installing (for "all")
-  ignore_install = { "javascript" },
-
-  highlight = {
-    -- `false` will disable the whole extension
-    enable = true,
-  },
-}
-EOF
 
 "*****************************************************************************
 "" Basic Setup
@@ -99,9 +111,9 @@ set softtabstop=0
 set shiftwidth=4
 set expandtab
 
-"" Map leader to ,
+"" Map leader to space
 nnoremap <SPACE> <Nop>
-let mapleader=' '
+let mapleader=" "
 
 "" Enable hidden buffers
 set hidden
@@ -118,7 +130,8 @@ if exists('$SHELL')
     set shell=$SHELL
 else
     set shell=/bin/zsh
-endif
+end
+
 
 "*****************************************************************************
 "" Visual Settings
@@ -128,8 +141,7 @@ set ruler
 set number
 
 let no_buffers_menu=1
-colorscheme gruvbox
-
+colorscheme codedark
 
 " Better command line completion 
 set wildmenu
@@ -183,7 +195,6 @@ endif
 " vim-airline
 let g:airline_theme = 'powerlineish'
 let g:airline#extensions#branch#enabled = 1
-let g:airline#extensions#ale#enabled = 1
 let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#tagbar#enabled = 1
 let g:airline_skip_empty_sections = 1
@@ -216,7 +227,7 @@ nnoremap <silent> <F3> :NERDTreeToggle<CR>
 
 " grep.vim
 nnoremap <silent> <leader>f :Rgrep<CR>
-let Grep_Default_Options = '-NIR'
+let Grep_Default_Options = '-nir'
 let Grep_Skip_Files = '*.log *.db'
 let Grep_Skip_Dirs = '.git node_modules'
 
@@ -275,6 +286,14 @@ set autoread
 "" Mappings
 "*****************************************************************************
 
+"" Magma
+nnoremap <expr> <Leader>r  :MagmaEvaluateOperator<CR>
+nnoremap <Leader>rr :MagmaEvaluateLine<CR>
+xnoremap <Leader>r  :<C-u>MagmaEvaluateVisual<CR>
+nnoremap <Leader>rc :MagmaReevaluateCell<CR>
+nnoremap <Leader>rd :MagmaDelete<CR>
+nnoremap <Leader>ro :MagmaShowOutput<CR>
+
 "" Split
 noremap <Leader>h :<C-u>split<CR>
 noremap <Leader>v :<C-u>vsplit<CR>
@@ -324,7 +343,6 @@ endif
 cnoremap <C-P> <C-R>=expand("%:p:h") . "/" <CR>
 nnoremap <silent> <leader>b :Buffers<CR>
 nnoremap <silent> <leader>e :FZF -m<CR>
-
 "Recovery commands from history through FZF
 nmap <leader>y :History:<CR>
 
@@ -381,6 +399,44 @@ vnoremap K :m '<-2<CR>gv=gv
 
 "" Open current line on GitHub
 nnoremap <Leader>o :.Gbrowse<CR>
+
+"*****************************************************************************
+"" Custom configs
+"*****************************************************************************
+"
+let g:python_host_prog = '/Users/ryangannon/miniconda3/envs/science/bin/python'
+let g:python3_host_prog = '/Users/ryangannon/miniconda3/envs/science/bin/python'
+
+let g:SuperTabDefaultCompletionType = "<c-n>"
+
+" python
+" vim-python
+augroup vimrc-python
+  autocmd!
+  autocmd FileType python setlocal expandtab shiftwidth=4 tabstop=8 colorcolumn=79
+      \ formatoptions+=croq softtabstop=4
+      \ cinwords=if,elif,else,for,while,try,except,finally,def,class,with
+augroup END
+
+" jedi-vim
+let g:jedi#popup_on_dot = 1
+let g:jedi#goto_assignments_command = "<leader>g"
+let g:jedi#goto_definitions_command = "<leader>d"
+let g:jedi#documentation_command = "K"
+let g:jedi#usages_command = "<leader>n"
+let g:jedi#rename_command = "<leader>rn"
+let g:jedi#show_call_signatures = "0"
+let g:jedi#smart_auto_mappings = 0
+let g:jedi#use_splits_not_buffers = "right"
+
+let g:jedi#completions_enabled = 1
+
+" vim-airline
+let g:airline#extensions#virtualenv#enabled = 1
+
+" Syntax highlight
+let python_highlight_all = 1
+
 
 "*****************************************************************************
 "" Convenience variables

@@ -26,6 +26,10 @@ RUN sudo apt-get update && \
                             gcc \
                             g++ \
                             unzip \
+                            jq \
+                            libpq-dev \
+                            build-essential \
+                            python \
                             findutils
 
 
@@ -36,8 +40,16 @@ RUN sbcl --load quicklisp.lisp \
          --eval "(quicklisp-quickstart:install)" \
          --quit
 
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
+    unzip awscliv2.zip && \
+    sudo ./aws/install && \
+    mkdir src
+
 RUN git clone --depth 1 https://github.com/doomemacs/doomemacs /home/rmg/.emacs.d
 COPY doom/* .doom.d/
+
+RUN yes | .emacs.d/bin/doom install
+RUN .emacs.d/bin/doom sync
 
 COPY init.vim .config/nvim/init.vim
 COPY zshrc .zprofile
@@ -48,5 +60,13 @@ RUN echo "source ~/.zprofile" > ~/.zshrc
 RUN yes | sudo unminimize
 
 RUN nvim --headless +PlugInstall +qa
+
+WORKDIR /home/rmg
+
+ENV REPO=/home/rmg/discovery-pipeline/
+ENV SRC=$REPO/embark-research-on-aws/src
+ENV CONDA_ENVIRONMENT=science
+
+
 
 CMD ["/usr/bin/zsh"]
