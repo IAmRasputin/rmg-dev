@@ -38,9 +38,9 @@ Plug 'majutsushi/tagbar'
 Plug 'Yggdroot/indentLine'
 Plug 'tpope/vim-rhubarb' " required by fugitive to :Gbrowse
 Plug 'tomasiser/vim-code-dark'
-Plug 'dccsillag/magma-nvim', { 'do': ':UpdateRemotePlugins' }
+Plug 'JuliaEditorSupport/julia-vim'
+Plug 'p00f/clangd_extensions.nvim'
 
-let g:deoplete#enable_at_startup = 1
 
 if isdirectory('/usr/local/opt/fzf')
   Plug '/usr/local/opt/fzf' | Plug 'junegunn/fzf.vim'
@@ -50,11 +50,9 @@ else
 endif
 let g:make = 'gmake'
 if exists('make')
-        let g:make = 'make'
+    let g:make = 'make'
 endif
 Plug 'Shougo/vimproc.vim', {'do': g:make}
-
-"Plug 'ervandew/supertab'
 
 
 "*****************************************************************************
@@ -62,36 +60,42 @@ Plug 'Shougo/vimproc.vim', {'do': g:make}
 "*****************************************************************************
 
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
-
-" python
-"" Python Bundle
+"
+"" python
+""" Python Bundle
 Plug 'davidhalter/jedi-vim'
 Plug 'raimon49/requirements.txt.vim', {'for': 'requirements'}
-
+"
 Plug 'neovim/nvim-lspconfig'
 Plug 'hrsh7th/cmp-nvim-lsp'
 Plug 'hrsh7th/cmp-buffer'
 Plug 'hrsh7th/cmp-path'
 Plug 'hrsh7th/cmp-cmdline'
 Plug 'hrsh7th/nvim-cmp'
-
+"
 Plug 'ray-x/lsp_signature.nvim'
-
-" For vsnip users.
+"
+"" For vsnip users.
 Plug 'hrsh7th/cmp-vsnip'
 Plug 'hrsh7th/vim-vsnip'
 Plug 'hrsh7th/vim-vsnip-integ'
 Plug 'rafamadriz/friendly-snippets'
 
+Plug 'hkupty/iron.nvim'
+Plug 'windwp/nvim-ts-autotag'
+
+Plug 'kovisoft/slimv'
+
 call plug#end()
 
-set completeopt=menu,menuone,noselect
 lua require('config')
+set completeopt=menu,menuone,noinsert,noselect
 
+" Let nvim-cmp take care of completion over vim-go
+let g:go_code_completion_enabled = 0
 
 " Required:
 filetype plugin indent on
-
 
 "*****************************************************************************
 "" Basic Setup
@@ -101,6 +105,8 @@ set encoding=utf-8
 set fileencoding=utf-8
 set fileencodings=utf-8
 
+"" iron
+tnoremap <Esc> <C-\><C-n><C-W>p
 
 "" Fix backspace indent
 set backspace=indent,eol,start
@@ -114,6 +120,8 @@ set expandtab
 "" Map leader to space
 nnoremap <SPACE> <Nop>
 let mapleader=" "
+
+nnoremap <Leader><Space> <cmd>IronFocus<cr>a
 
 "" Enable hidden buffers
 set hidden
@@ -193,7 +201,7 @@ if exists("*fugitive#statusline")
 endif
 
 " vim-airline
-let g:airline_theme = 'powerlineish'
+let g:airline_theme = 'wombat'
 let g:airline#extensions#branch#enabled = 1
 let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#tagbar#enabled = 1
@@ -214,7 +222,7 @@ cnoreabbrev Q q
 cnoreabbrev Qall qall
 
 "" NERDTree configuration
-let g:NERDTreeChDirMode=2
+let g:NERDTreeChDirMode=3
 let g:NERDTreeIgnore=['node_modules','\.rbc$', '\~$', '\.pyc$', '\.db$', '\.sqlite$', '__pycache__']
 let g:NERDTreeSortOrder=['^__\.py$', '\/$', '*', '\.swp$', '\.bak$', '\~$']
 let g:NERDTreeShowBookmarks=1
@@ -222,6 +230,7 @@ let g:nerdtree_tabs_focus_on_files=1
 let g:NERDTreeMapOpenInTabSilent = '<RightMouse>'
 let g:NERDTreeWinSize = 50
 set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*.pyc,*.db,*.sqlite,*node_modules/
+nnoremap <silent> <F1> :NERDTreeFocus<CR>
 nnoremap <silent> <F2> :NERDTreeFind<CR>
 nnoremap <silent> <F3> :NERDTreeToggle<CR>
 
@@ -286,14 +295,6 @@ set autoread
 "" Mappings
 "*****************************************************************************
 
-"" Magma
-nnoremap <expr> <Leader>r  :MagmaEvaluateOperator<CR>
-nnoremap <Leader>rr :MagmaEvaluateLine<CR>
-xnoremap <Leader>r  :<C-u>MagmaEvaluateVisual<CR>
-nnoremap <Leader>rc :MagmaReevaluateCell<CR>
-nnoremap <Leader>rd :MagmaDelete<CR>
-nnoremap <Leader>ro :MagmaShowOutput<CR>
-
 "" Split
 noremap <Leader>h :<C-u>split<CR>
 noremap <Leader>v :<C-u>vsplit<CR>
@@ -309,8 +310,8 @@ noremap <Leader>gd :Gvdiffsplit<CR>
 noremap <Leader>gr :GRemove<CR>
 
 "" Tabs
-nnoremap <Tab> gt
-nnoremap <S-Tab> gT
+nnoremap <Leader><Tab> gt
+nnoremap <Leader><S-Tab> gT
 nnoremap <silent> <S-t> :tabnew<CR>
 
 "" Set working directory
@@ -372,16 +373,13 @@ if has('macunix')
 endif
 
 "" Buffer nav
-noremap <leader>z :bp<CR>
+noremap <S-Tab> :bp<CR>
 noremap <leader>q :bp<CR>
-noremap <leader>x :bn<CR>
+noremap <Tab> :bn<CR>
 noremap <leader>w :bn<CR>
 
 "" Close buffer
 noremap <leader>c :bd<CR>
-
-"" Clean search (highlight)
-nnoremap <silent> <leader><space> :noh<cr>
 
 "" Switching windows
 noremap <C-j> <C-w>j
@@ -403,11 +401,16 @@ nnoremap <Leader>o :.Gbrowse<CR>
 "*****************************************************************************
 "" Custom configs
 "*****************************************************************************
-"
-let g:python_host_prog = '/Users/ryangannon/miniconda3/envs/science/bin/python'
-let g:python3_host_prog = '/Users/ryangannon/miniconda3/envs/science/bin/python'
 
-let g:SuperTabDefaultCompletionType = "<c-n>"
+"slimv
+let g:slimv_swank_cmd = '! tmux new-window -d -n REPL-SBCL "sbcl --load ~/.config/nvim/plugged/slimv/slime/start-swank.lisp"'
+let g:slimv_repl_split = 2
+
+" gdscript
+augroup vimrc-gdscript
+  autocmd!
+  autocmd FileType gdscript setlocal noexpandtab shiftwidth=4 tabstop=4 softtabstop=4
+augroup END
 
 " python
 " vim-python
@@ -419,7 +422,7 @@ augroup vimrc-python
 augroup END
 
 " jedi-vim
-let g:jedi#popup_on_dot = 1
+let g:jedi#popup_on_dot = 0
 let g:jedi#goto_assignments_command = "<leader>g"
 let g:jedi#goto_definitions_command = "<leader>d"
 let g:jedi#documentation_command = "K"
@@ -429,7 +432,7 @@ let g:jedi#show_call_signatures = "0"
 let g:jedi#smart_auto_mappings = 0
 let g:jedi#use_splits_not_buffers = "right"
 
-let g:jedi#completions_enabled = 1
+let g:jedi#completions_enabled = 0
 
 " vim-airline
 let g:airline#extensions#virtualenv#enabled = 1
