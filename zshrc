@@ -80,10 +80,10 @@ source $ZSH/oh-my-zsh.sh
 
 alias vim=nvim
 alias tldr="tldr --theme=base16"
+alias emacs="emacs -nw"
 
 path+="/home/rmg/.emacs.d/bin"
 path+="/home/rmg/go/bin"
-path+="/home/rmg/programs/julia/bin"
 path+="/home/rmg/programs"
 path+="/home/rmg/.local/bin/"
 
@@ -115,4 +115,20 @@ setopt PROMPT_SUBST PROMPT_PERCENT
 
 # Display a "we are in a virtualenv" indicator that works in child shells too
 VIRTUAL_ENV_DISABLE_PROMPT=1
+
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+#__conda_setup="$('/home/rmg/programs/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+#if [ $? -eq 0 ]; then
+#    eval "$__conda_setup"
+#else
+#    if [ -f "/home/rmg/programs/miniconda3/etc/profile.d/conda.sh" ]; then
+#        . "/home/rmg/programs/miniconda3/etc/profile.d/conda.sh"
+#    else
+#        export PATH="/home/rmg/programs/miniconda3/bin:$PATH"
+#    fi
+#fi
+#unset __conda_setup
+# <<< conda initialize <<<
+
 RPS1='$(zsh_virtualenv_prompt)'
