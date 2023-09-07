@@ -7,7 +7,7 @@
 ;; Some functionality uses this to identify you, e.g. GPG configuration, email
 ;; clients, file templates and snippets. It is optional.
 (setq user-full-name "Ryan Gannon"
-      user-mail-address "rgannon@embarkvet.com")
+      user-mail-address "ryanmgannon@gmail.com")
 
 ;; Doom exposes five (optional) variables for controlling fonts in Doom:
 ;;
@@ -43,8 +43,30 @@
 (setq org-directory "~/org/")
 
 
-(setq inferior-lisp-program "sbcl --noinform --no-linedit")
 
+(after! sly
+  (setq sly-command-switch-to-existing-lisp 'always)
+  (setq flex-score-minimum 1)
+  (setq sly-complete-symbol-function 'sly-flex-completions))
+
+
+;; Logz
+(load "~/quicklisp/log4sly-setup.el")
+(global-log4sly-mode 1)
+
+(eval-after-load 'sly-mrepl
+  `(define-key sly-mrepl-mode-map (kbd "<return>") 'sly-mrepl-return))
+(eval-after-load 'sly-mrepl
+  `(define-key sly-mrepl-mode-map (kbd "RET") 'sly-mrepl-return))
+(eval-after-load 'sly-mrepl
+  `(define-key sly-mrepl-mode-map (kbd "C-<return>") 'newline-and-indent))
+(eval-after-load 'sly-mrepl
+  `(define-key sly-mrepl-mode-map (kbd "C-RET") 'newline-and-indent))
+
+
+;; FIXME: like half of these are broken
+(after! vterm
+  (set-popup-rule! "*doom:vterm-popup:main" :size 0.25 :vslot -4 :select t :quit nil :ttl 0 :side 'right :width 120))
 (map!
  :leader
  :map lisp-mode
@@ -88,9 +110,11 @@
   :desc "switch to visual state"                  "v" #'evil-visual-char
   :desc "switch to visual line state"             "V" #'evil-visual-line
   :desc "switch to visual block state"            "C-v" #'evil-visual-block
-  :desc "wrap expr with parens"                   "w" #'lisp-state-wrap
+  :desc "wrap expr with parens"                   "w" #'sp-wrap-round
   :desc "unwrap expression"                       "W" #'sp-unwrap-sexp
   :desc "copy expression"                         "y" #'sp-copy-sexp))
+
+
 ;; Whenever you reconfigure a package, make sure to wrap your config in an
 ;; `after!' block, otherwise Doom's defaults may override your settings. E.g.
 ;;
