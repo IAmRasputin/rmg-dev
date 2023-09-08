@@ -1,4 +1,3 @@
-For getting a new environment up and ready.
-
-I'd love to have a script to put these things in their right places, but that
-would probably require too much work to make it portable, for now.
+For getting a *new* environment up and ready.  The `bootstrap.sh` script will
+try to preserve your current environment if it already exists and you run it by
+accident.
