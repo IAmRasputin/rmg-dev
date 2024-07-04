@@ -10,7 +10,7 @@ export ZSH="$HOME/.oh-my-zsh"
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-ZSH_THEME="af-magic"
+ZSH_THEME="cash-magic"
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
@@ -79,13 +79,19 @@ source $ZSH/oh-my-zsh.sh
 # User configuration
 
 alias vim=nvim
-alias tldr="tldr --theme=base16"
-alias emacs="emacs -nw"
+alias tldr="tldr --color"
 
-path+="/home/rmg/.emacs.d/bin"
+alias yay="yay --color always"
+alias emacs="emacs -nw"
+alias gdb="gdb -q"
+
+path+="/home/rmg/.config/emacs/bin"
 path+="/home/rmg/go/bin"
+path+="/home/rmg/programs/julia/bin"
 path+="/home/rmg/programs"
 path+="/home/rmg/.local/bin/"
+path+="/home/rmg/.roswell/bin/"
+path+="/usr/games/"
 
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
@@ -94,6 +100,7 @@ export NVM_DIR="$HOME/.nvm"
 export VIRTUALENVWRAPPER_PYTHON=/usr/bin/python
 export WORKON_HOME=~/virtualenv/
 export VIRTUALENVWRAPPER_VIRTUALENV=/usr/bin/virtualenv
+export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig/
 source /usr/bin/virtualenvwrapper.sh
 
 
@@ -115,20 +122,7 @@ setopt PROMPT_SUBST PROMPT_PERCENT
 
 # Display a "we are in a virtualenv" indicator that works in child shells too
 VIRTUAL_ENV_DISABLE_PROMPT=1
-
-# >>> conda initialize >>>
-# !! Contents within this block are managed by 'conda init' !!
-#__conda_setup="$('/home/rmg/programs/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
-#if [ $? -eq 0 ]; then
-#    eval "$__conda_setup"
-#else
-#    if [ -f "/home/rmg/programs/miniconda3/etc/profile.d/conda.sh" ]; then
-#        . "/home/rmg/programs/miniconda3/etc/profile.d/conda.sh"
-#    else
-#        export PATH="/home/rmg/programs/miniconda3/bin:$PATH"
-#    fi
-#fi
-#unset __conda_setup
-# <<< conda initialize <<<
-
 RPS1='$(zsh_virtualenv_prompt)'
+workon base
+
+source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh

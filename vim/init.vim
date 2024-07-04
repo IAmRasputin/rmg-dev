@@ -41,6 +41,12 @@ Plug 'tomasiser/vim-code-dark'
 Plug 'JuliaEditorSupport/julia-vim'
 Plug 'p00f/clangd_extensions.nvim'
 
+" Fountain (markup for screenwriting)
+Plug 'kblin/vim-fountain'
+
+" Clojure
+Plug 'guns/vim-clojure-static'
+
 if isdirectory('/usr/local/opt/fzf')
   Plug '/usr/local/opt/fzf' | Plug 'junegunn/fzf.vim'
 else
@@ -51,6 +57,8 @@ let g:make = 'gmake'
 if exists('make')
     let g:make = 'make'
 endif
+Plug 'Shougo/vimproc.vim', {'do': g:make}
+
 
 "*****************************************************************************
 "" Custom bundles
@@ -81,7 +89,7 @@ Plug 'rafamadriz/friendly-snippets'
 Plug 'hkupty/iron.nvim'
 Plug 'windwp/nvim-ts-autotag'
 
-Plug 'vlime/vlime', {'rtp': 'vim/'}
+Plug 'kovisoft/slimv'
 
 call plug#end()
 
@@ -286,6 +294,12 @@ augroup vimrc-make-cmake
   autocmd BufNewFile,BufRead CMakeLists.txt setlocal filetype=cmake
 augroup END
 
+augroup vimrc-fountain
+  autocmd!
+  autocmd FileType fountain setlocal tw=80
+  autocmd FileType fountain setlocal wrap
+augroup END
+
 set autoread
 
 "*****************************************************************************
@@ -399,6 +413,10 @@ nnoremap <Leader>o :.Gbrowse<CR>
 "" Custom configs
 "*****************************************************************************
 
+"slimv
+let g:slimv_swank_cmd = '! tmux new-window -d -n REPL-SBCL "sbcl --load ~/.config/nvim/plugged/slimv/slime/start-swank.lisp"'
+let g:slimv_repl_split = 2
+
 " gdscript
 augroup vimrc-gdscript
   autocmd!
@@ -409,18 +427,10 @@ augroup END
 " vim-python
 augroup vimrc-python
   autocmd!
-  autocmd FileType python setlocal expandtab shiftwidth=4 tabstop=8 colorcolumn=80
+  autocmd FileType python setlocal expandtab shiftwidth=4 tabstop=8 colorcolumn=79
       \ formatoptions+=croq softtabstop=4
       \ cinwords=if,elif,else,for,while,try,except,finally,def,class,with
 augroup END
-
-" c
-augroup vimrc-c
-    autocmd!
-    autocmd FileType c setlocal noexpandtab tabstop=8 shiftwidth=8 colorcolumn=80
-    autocmd FileType cpp setlocal noexpandtab tabstop=8 shiftwidth=8 colorcolumn=80
-augroup END
-
 
 " jedi-vim
 let g:jedi#popup_on_dot = 0
@@ -445,6 +455,8 @@ let python_highlight_all = 1
 "*****************************************************************************
 "" Convenience variables
 "*****************************************************************************
+" So tmux is less weird about the ESC key
+set ttimeoutlen=100
 
 " vim-airline
 if !exists('g:airline_symbols')

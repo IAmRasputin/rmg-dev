@@ -42,19 +42,45 @@
 ;; change `org-directory'. It must be set before org loads!
 (setq org-directory "~/org/")
 
+(setq sly-command-switch-to-existing-lisp 'always)
 
-(setq inferior-lisp-program "sbcl --noinform --no-linedit")
-(setq sly-complete-symbol-function 'sly-flex-completions)
+(setq flex-score-minimum 2)
+
+(defun my-flex-completions (pattern)
+  "Return (COMPLETIONS NIL) where COMPLETIONS flex-complete PATTERN.
+COMPLETIONS is a list of propertized strings."
+  (cl-loop with (completions _) =
+           (sly--completion-request-completions pattern 'slynk-completion:flex-completions)
+           for (completion score chunks classification suggestion) in completions
+           when (> score flex-score-minimum)
+           do
+           (progn
+             (cl-loop for (pos substring) in chunks
+                      do (put-text-property pos (+ pos
+                                                   (length substring))
+                                            'face
+                                            'completions-first-difference
+                                            completion)
+                      collect `(,pos . ,(+ pos (length substring))) into chunks-2
+                      finally (put-text-property 0 (length completion)
+                                                 'sly-completion-chunks chunks-2
+                                                 completion))
+             (add-text-properties 0
+                                  (length completion)
+                                  `(sly--annotation
+                                    ,(format "%s %5.2f%%"
+                                             classification
+                                             (* score 100))
+                                    sly--suggestion
+                                    ,suggestion)
+                                  completion))
+
+           collect completion into formatted
+           finally return (list formatted nil)))
 
 (after! sly
-  (setq sly-command-switch-to-existing-lisp 'always)
-  (setq flex-score-minimum 1)
   (setq sly-complete-symbol-function 'sly-flex-completions))
 
-
-;; Logz
-(load "~/quicklisp/log4sly-setup.el")
-(global-log4sly-mode 1)
 
 (eval-after-load 'sly-mrepl
   `(define-key sly-mrepl-mode-map (kbd "<return>") 'sly-mrepl-return))
@@ -66,9 +92,13 @@
   `(define-key sly-mrepl-mode-map (kbd "C-RET") 'newline-and-indent))
 
 
-;; FIXME: like half of these are broken
+
+;(setq inferior-lisp-program "sbcl --noinform --no-linedit")
+;(setq inferior-lisp-program "/home/rmg/code/Lisp/rmg.image")
+
 (after! vterm
-  (set-popup-rule! "*doom:vterm-popup:main" :size 0.25 :vslot -4 :select t :quit nil :ttl 0 :side 'right :width 120))
+  (set-popup-rule! "*doom:vterm-popup:main" :size 0.25 :vslot -4 :select t :quit nil :ttl 0 :side 'right :width 120)
+  )
 (map!
  :leader
  :map lisp-mode
