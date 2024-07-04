@@ -7,7 +7,7 @@
 ;; Some functionality uses this to identify you, e.g. GPG configuration, email
 ;; clients, file templates and snippets. It is optional.
 (setq user-full-name "Ryan Gannon"
-      user-mail-address "rgannon@embarkvet.com")
+      user-mail-address "ryanmgannon@gmail.com")
 
 ;; Doom exposes five (optional) variables for controlling fonts in Doom:
 ;;
@@ -44,6 +44,7 @@
 
 
 (setq inferior-lisp-program "sbcl --noinform --no-linedit")
+(setq sly-complete-symbol-function 'sly-flex-completions)
 
 (map!
  :leader
