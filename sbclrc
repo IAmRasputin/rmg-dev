@@ -6,8 +6,17 @@
     (load quicklisp-init)))
 
 #+quicklisp
-(push #p"~/Documents/Code/Lisp/" ql:*local-project-directories*)
+(push #p"~/code/lisp/" ql:*local-project-directories*)
+
+(defun :cd (path)
+  (uiop:chdir path)
+  (setf *default-pathname-defaults* (truename path)))
 
 (when (and (interactive-stream-p *terminal-io*) (not (member "--no-linedit" (uiop:command-line-arguments) :test #'equalp)))
-  (ql:quickload :linedit :silent t)
+  (ql:quickload '(linedit alexandria serapeum)  :silent t)
+  (defpackage #:rmg
+    (:use :cl :cl-user :alexandria :serapeum))
+  (in-package #:rmg)
   (funcall (intern "INSTALL-REPL" :linedit) :wrap-current t :eof-quits t))
+
+
