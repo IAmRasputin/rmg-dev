@@ -44,7 +44,7 @@
 
 (setq sly-command-switch-to-existing-lisp 'always)
 
-(setq flex-score-minimum 2)
+(setq flex-score-minimum 1)
 
 (defun my-flex-completions (pattern)
   "Return (COMPLETIONS NIL) where COMPLETIONS flex-complete PATTERN.
@@ -82,6 +82,10 @@ COMPLETIONS is a list of propertized strings."
   (setq sly-complete-symbol-function 'sly-flex-completions))
 
 
+;; Logz
+;(load "~/quicklisp/log4sly-setup.el")
+;(global-log4sly-mode 1)
+
 (eval-after-load 'sly-mrepl
   `(define-key sly-mrepl-mode-map (kbd "<return>") 'sly-mrepl-return))
 (eval-after-load 'sly-mrepl
@@ -93,7 +97,7 @@ COMPLETIONS is a list of propertized strings."
 
 
 
-;(setq inferior-lisp-program "sbcl --noinform --no-linedit")
+;(setq inferior-lisp-program "sbcl --noinform")
 ;(setq inferior-lisp-program "/home/rmg/code/Lisp/rmg.image")
 
 (after! vterm

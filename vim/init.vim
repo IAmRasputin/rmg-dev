@@ -37,28 +37,37 @@ Plug 'Raimondi/delimitMate'
 Plug 'majutsushi/tagbar'
 Plug 'Yggdroot/indentLine'
 Plug 'tpope/vim-rhubarb' " required by fugitive to :Gbrowse
+
+Plug 'numToStr/FTerm.nvim'
+
+" Pretty!
 Plug 'tomasiser/vim-code-dark'
+Plug 'rafamadriz/neon'
+Plug 'sainnhe/sonokai'
+Plug 'nvimdev/zephyr-nvim'
+Plug 'Th3Whit3Wolf/onebuddy'
+Plug 'sainnhe/edge'
+Plug 'Th3Whit3Wolf/one-nvim'
+Plug 'Th3Whit3Wolf/space-nvim'
+Plug 'ray-x/starry.nvim'
+Plug 'morhetz/gruvbox'
+Plug 'sainnhe/gruvbox-material'
+Plug 'sainnhe/everforest'
+Plug 'navarasu/onedark.nvim'
+Plug 'AlexvZyl/nordic.nvim'
+Plug 'Mofiqul/vscode.nvim'
+
+Plug 'vimwiki/vimwiki'
+
+Plug 'kblin/vim-fountain'
+
 Plug 'JuliaEditorSupport/julia-vim'
 Plug 'p00f/clangd_extensions.nvim'
 
-" Fountain (markup for screenwriting)
-Plug 'kblin/vim-fountain'
-
-" Clojure
-Plug 'guns/vim-clojure-static'
-
-if isdirectory('/usr/local/opt/fzf')
-  Plug '/usr/local/opt/fzf' | Plug 'junegunn/fzf.vim'
-else
-  Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --bin' }
-  Plug 'junegunn/fzf.vim'
-endif
 let g:make = 'gmake'
 if exists('make')
     let g:make = 'make'
 endif
-Plug 'Shougo/vimproc.vim', {'do': g:make}
-
 
 "*****************************************************************************
 "" Custom bundles
@@ -79,6 +88,24 @@ Plug 'hrsh7th/cmp-cmdline'
 Plug 'hrsh7th/nvim-cmp'
 "
 Plug 'ray-x/lsp_signature.nvim'
+
+" clj
+" Plug 'dense-analysis/ale'
+Plug 'Olical/conjure'
+Plug 'guns/vim-sexp'
+Plug 'guns/vim-clojure-static'
+Plug 'tpope/vim-sexp-mappings-for-regular-people'
+Plug 'luochen1990/rainbow'
+
+Plug 'tpope/vim-dispatch'
+Plug 'clojure-vim/vim-jack-in'
+" Only in Neovim:
+Plug 'radenling/vim-dispatch-neovim'
+
+let g:rainbow_active=1
+let g:ale_linters = { 'clojure': ['clj-kondo']}
+let g:ale_pattern_options = {'conjure-log*': {'ale_enabled': 0}}
+
 "
 "" For vsnip users.
 Plug 'hrsh7th/cmp-vsnip'
@@ -89,7 +116,9 @@ Plug 'rafamadriz/friendly-snippets'
 Plug 'hkupty/iron.nvim'
 Plug 'windwp/nvim-ts-autotag'
 
-Plug 'kovisoft/slimv'
+Plug 'vlime/vlime', {'rtp': 'vim/'}
+
+Plug 'mfussenegger/nvim-jdtls'
 
 call plug#end()
 
@@ -127,6 +156,7 @@ nnoremap <SPACE> <Nop>
 let mapleader=" "
 
 nnoremap <Leader><Space> <cmd>IronFocus<cr>a
+let maplocalleader=" "
 
 "" Enable hidden buffers
 set hidden
@@ -154,7 +184,7 @@ set ruler
 set number
 
 let no_buffers_menu=1
-colorscheme codedark
+colorscheme gruvbox-material
 
 " Better command line completion 
 set wildmenu
@@ -190,7 +220,6 @@ set laststatus=2
 set modeline
 set modelines=10
 
-set title
 set titleold="Terminal"
 set titlestring=%F
 
@@ -269,10 +298,10 @@ endif
 "*****************************************************************************
 "" Autocmd Rules
 "*****************************************************************************
-"" The PC is fast enough, do syntax highlight syncing from start unless 200 lines
+"" The PC is fast enough, do syntax highlight syncing from start unless 400 lines
 augroup vimrc-sync-fromstart
   autocmd!
-  autocmd BufEnter * :syntax sync maxlines=200
+  autocmd BufEnter * :syntax sync maxlines=400
 augroup END
 
 "" Remember cursor position
@@ -292,12 +321,6 @@ augroup vimrc-make-cmake
   autocmd!
   autocmd FileType make setlocal noexpandtab
   autocmd BufNewFile,BufRead CMakeLists.txt setlocal filetype=cmake
-augroup END
-
-augroup vimrc-fountain
-  autocmd!
-  autocmd FileType fountain setlocal tw=80
-  autocmd FileType fountain setlocal wrap
 augroup END
 
 set autoread
@@ -328,35 +351,11 @@ nnoremap <silent> <S-t> :tabnew<CR>
 "" Set working directory
 nnoremap <leader>. :lcd %:p:h<CR>
 
-"" Opens an edit command with the path of the currently edited file filled in
-noremap <Leader>e :e <C-R>=expand("%:p:h") . "/" <CR>
-
 "" Opens a tab edit command with the path of the currently edited file filled
 noremap <Leader>te :tabe <C-R>=expand("%:p:h") . "/" <CR>
 
-"" fzf.vim
-set wildmode=list:longest,list:full
-set wildignore+=*.o,*.obj,.git,*.rbc,*.pyc,__pycache__
-let $FZF_DEFAULT_COMMAND =  "find * -path '*/\.*' -prune -o -path 'node_modules/**' -prune -o -path 'target/**' -prune -o -path 'dist/**' -prune -o  -type f -print -o -type l -print 2> /dev/null"
-
-" The Silver Searcher
-if executable('ag')
-  let $FZF_DEFAULT_COMMAND = 'ag --hidden --ignore .git -g ""'
-  set grepprg=ag\ --nogroup\ --nocolor
-endif
-
-" ripgrep
-if executable('rg')
-  let $FZF_DEFAULT_COMMAND = 'rg --files --hidden --follow --glob "!.git/*"'
-  set grepprg=rg\ --vimgrep
-  command! -bang -nargs=* Find call fzf#vim#grep('rg --column --line-number --no-heading --fixed-strings --ignore-case --hidden --follow --glob "!.git/*" --color "always" '.shellescape(<q-args>).'| tr -d "\017"', 1, <bang>0)
-endif
-
 cnoremap <C-P> <C-R>=expand("%:p:h") . "/" <CR>
 nnoremap <silent> <leader>b :Buffers<CR>
-nnoremap <silent> <leader>e :FZF -m<CR>
-"Recovery commands from history through FZF
-nmap <leader>y :History:<CR>
 
 " Tagbar
 nmap <silent> <F4> :TagbarToggle<CR>
@@ -413,10 +412,6 @@ nnoremap <Leader>o :.Gbrowse<CR>
 "" Custom configs
 "*****************************************************************************
 
-"slimv
-let g:slimv_swank_cmd = '! tmux new-window -d -n REPL-SBCL "sbcl --load ~/.config/nvim/plugged/slimv/slime/start-swank.lisp"'
-let g:slimv_repl_split = 2
-
 " gdscript
 augroup vimrc-gdscript
   autocmd!
@@ -427,10 +422,37 @@ augroup END
 " vim-python
 augroup vimrc-python
   autocmd!
-  autocmd FileType python setlocal expandtab shiftwidth=4 tabstop=8 colorcolumn=79
+  autocmd FileType python setlocal expandtab shiftwidth=4 tabstop=8 colorcolumn=80
       \ formatoptions+=croq softtabstop=4
       \ cinwords=if,elif,else,for,while,try,except,finally,def,class,with
 augroup END
+
+" c
+augroup vimrc-c
+    autocmd!
+    autocmd FileType c setlocal noexpandtab tabstop=8 shiftwidth=8 colorcolumn=80
+    autocmd FileType cpp setlocal noexpandtab tabstop=8 shiftwidth=8 colorcolumn=80
+augroup END
+
+" JavaScript
+augroup vimrc-javascript
+    autocmd!
+    autocmd FileType javascript setlocal expandtab tabstop=2 shiftwidth=2
+    autocmd FileType javascriptreact setlocal expandtab tabstop=2 shiftwidth=2
+    autocmd FileType js setlocal expandtab tabstop=2 shiftwidth=2
+    autocmd FileType jsx setlocal expandtab tabstop=2 shiftwidth=2 
+augroup END
+
+" Clojure (maybe for other lisps too idk)
+augroup vimrc-lisp
+    autocmd!
+    autocmd FileType clojure let b:delimitMate_quotes='"'
+    autocmd FileType clojure let b:delimitMate_excluded_regions="Comment,String"
+    autocmd FileType clojure let b:delimitMate_smart_quotes=1
+    autocmd FileType clojure let g:sexp_enable_insert_mode_mappings=0
+    autocmd FileType lisp let g:sexp_enable_insert_mode_mappings=0
+augroup END
+
 
 " jedi-vim
 let g:jedi#popup_on_dot = 0
@@ -455,8 +477,6 @@ let python_highlight_all = 1
 "*****************************************************************************
 "" Convenience variables
 "*****************************************************************************
-" So tmux is less weird about the ESC key
-set ttimeoutlen=100
 
 " vim-airline
 if !exists('g:airline_symbols')
@@ -493,3 +513,4 @@ else
   let g:airline_symbols.readonly = ''
   let g:airline_symbols.linenr = ''
 endif
+

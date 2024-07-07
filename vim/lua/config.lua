@@ -2,6 +2,10 @@ require'nvim-treesitter.configs'.setup {
     -- A list of parser names, or "all"
     ensure_installed = { "c", "lua", "rust", "go", "python", "bash", "commonlisp", "dockerfile", "sql", "vim", "javascript", "vue" },
 
+    indent = {
+        enable = true,
+    },
+
     -- Install parsers synchronously (only applied to `ensure_installed`)
     sync_install = false,
 
@@ -14,6 +18,7 @@ require'nvim-treesitter.configs'.setup {
 
     autotag = {
         enable = true,
+        enable_close_on_slash = false,
     },
 
     ---- If you need to change the installation directory of the parsers (see -> Advanced Setup)
@@ -61,7 +66,7 @@ require("clangd_extensions").setup {
             max_len_align_padding = 1,
             -- whether to align to the extreme right or not
             right_align = false,
-            -- padding from the right if right_align is true
+           -- padding from the right if right_align is true
             right_align_padding = 7,
             -- The color of the hints
             highlight = "Comment",
@@ -112,10 +117,10 @@ require("clangd_extensions").setup {
             },
         },
         memory_usage = {
-            border = "rounded",
+            border = "none",
         },
         symbol_info = {
-            border = "rounded",
+            border = "none",
         },
     },
 }
@@ -138,7 +143,6 @@ cmp.setup({
         completeopt = 'menu,menuone,noselect,noinsert'
     },
     snippet = {
-        -- REQUIRED - you must specify a snippet engine
         expand = function(args)
             vim.fn["vsnip#anonymous"](args.body)
         end,
@@ -155,10 +159,6 @@ cmp.setup({
             cmp.config.compare.score,
             cmp.config.compare.offset,
             cmp.config.compare.order,
-            --cmp.config.compare.exact,
-            --cmp.config.compare.kind,
-            --cmp.config.compare.sort_text,
-            --cmp.config.compare.length,
         },
     },
     mapping = cmp.mapping.preset.insert({
@@ -190,7 +190,6 @@ cmp.setup({
     }),
     sources = cmp.config.sources({
         { name = 'nvim_lsp' },
-        { name = 'path' },
         { name = 'vsnip' },
     }, {
         { name = 'buffer' },
@@ -263,9 +262,7 @@ local nvim_lsp = require('lspconfig')
 nvim_lsp.gdscript.setup{
     capabilities = require('cmp_nvim_lsp').default_capabilities(vim.lsp.protocol.make_client_capabilities())
 }
--- Racket
-nvim_lsp['racket_langserver'].setup{
-}
+
 -- Python
 nvim_lsp['pylsp'].setup{
   cmd = {'pylsp'},
@@ -301,7 +298,115 @@ nvim_lsp['tsserver'].setup{
 
 nvim_lsp['clojure_lsp'].setup{
     cmd = { "clojure-lsp" },
+    filetypes = { "clojure", "edn" },
     on_attach = on_attach,
     capabilities = capabilities,
-    filetypes = { "clojure", "clojurescript" },
+    root_dir = nvim_lsp.util.root_pattern("project.clj", "deps.edn", "build.boot", "shadow-cljs.edn", ".git", "bb.edn"),
 }
+
+nvim_lsp["clangd"].setup{
+    capabilities = capabilities,
+    cmd = {"clangd"},
+    filetypes = { "c", "cpp", "objc", "objcpp", "cuda", "proto" },
+    on_attach = on_attach,
+    root_dir = nvim_lsp.util.root_pattern(
+        '.clangd',
+        '.clang-tidy',
+        '.clang-format',
+        'compile_commands.json',
+        'compile_flags.txt',
+        'configure.ac'
+        -- '.git'
+    ),
+    single_file_support = true
+}
+
+local iron = require('iron.core')
+
+iron.setup {
+  config = {
+    -- Whether a repl should be discarded or not
+    scratch_repl = true,
+    close_window_on_exit = true,
+    -- Your repl definitions come here
+    repl_definition = {
+      sh = {
+        command = {"zsh"}
+      },
+      lisp = {
+          command = { "sbcl" }
+      },
+      scheme = {
+          command = { "rlwrap", "guile" }
+      },
+      python = require("iron.fts.python").ipython,
+      
+    },
+    -- How the repl window will be displayed
+    -- See below for more information
+    repl_open_cmd = require('iron.view').split.belowright(25),
+  },
+  -- Iron doesn't set keymaps by default anymore.
+  -- You can set them here or manually add keymaps to the functions in iron.core
+  keymaps = {
+    send_motion = "<space>sc",
+    visual_send = "<space>sv",
+    send_file = "<space>sf",
+    send_line = "<space>sl",
+    send_mark = "<space>sm",
+    mark_motion = "<space>mc",
+    mark_visual = "<space>mc",
+    remove_mark = "<space>md",
+    cr = "<space>s<cr>",
+    interrupt = "<space>s<space>",
+    exit = "<space>sq",
+    clear = "<space>cl",
+  },
+  -- If the highlight is on, you can change how it looks
+  -- For the available options, check nvim_set_hl
+  highlight = {
+    italic = true
+  }
+}
+
+
+-- iron also has a list of commands, see :h iron-commands for all available commands:
+vim.keymap.set('n', '<space>rs', '<cmd>IronRepl<cr>')
+vim.keymap.set('n', '<space>rr', '<cmd>IronRestart<cr>')
+vim.keymap.set('n', '<leader><space>', '<cmd>IronFocus<cr>a')
+vim.keymap.set('n', '<space>rh', '<cmd>IronHide<cr>')
+
+vim.api.nvim_create_autocmd("BufNewFile", {
+    group = vim.api.nvim_create_augroup("conjure_log_disable_lsp", { clear = true }),
+    pattern = { "conjure-log-*" },
+    callback = function() vim.diagnostic.disable(0) end,
+    desc = "Conjure Log disable LSP diagnostics",
+})
+
+local rocks_config = {
+    rocks_path = vim.env.HOME .. "/.local/share/nvim/rocks",
+    luarocks_binary = vim.env.HOME .. "/.local/share/nvim/rocks/bin/luarocks",
+}
+
+vim.g.rocks_nvim = rocks_config
+
+local luarocks_path = {
+    vim.fs.joinpath(rocks_config.rocks_path, "share", "lua", "5.1", "?.lua"),
+    vim.fs.joinpath(rocks_config.rocks_path, "share", "lua", "5.1", "?", "init.lua"),
+}
+package.path = package.path .. ";" .. table.concat(luarocks_path, ";")
+
+local luarocks_cpath = {
+    vim.fs.joinpath(rocks_config.rocks_path, "lib", "lua", "5.1", "?.so"),
+    vim.fs.joinpath(rocks_config.rocks_path, "lib64", "lua", "5.1", "?.so"),
+    -- Remove the dylib and dll paths if you do not need macos or windows support
+    vim.fs.joinpath(rocks_config.rocks_path, "lib", "lua", "5.1", "?.dylib"),
+    vim.fs.joinpath(rocks_config.rocks_path, "lib64", "lua", "5.1", "?.dylib"),
+    vim.fs.joinpath(rocks_config.rocks_path, "lib", "lua", "5.1", "?.dll"),
+    vim.fs.joinpath(rocks_config.rocks_path, "lib64", "lua", "5.1", "?.dll"),
+}
+package.cpath = package.cpath .. ";" .. table.concat(luarocks_cpath, ";")
+
+vim.opt.runtimepath:append(vim.fs.joinpath(rocks_config.rocks_path, "lib", "luarocks", "rocks-5.1", "rocks.nvim", "*"))
+
+require("neorg").setup()

@@ -54,7 +54,7 @@ ZSH_THEME="cash-magic"
 # Uncomment the following line if you want to disable marking untracked files
 # under VCS as dirty. This makes repository status check for large repositories
 # much, much faster.
-# DISABLE_UNTRACKED_FILES_DIRTY="true"
+DISABLE_UNTRACKED_FILES_DIRTY="true"
 
 # Uncomment the following line if you want to change the command execution time
 # stamp shown in the history command output.
@@ -72,26 +72,22 @@ ZSH_THEME="cash-magic"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git)
+plugins=(git zsh-syntax-highlighting)
 
 source $ZSH/oh-my-zsh.sh
 
 # User configuration
 
 alias vim=nvim
-alias tldr="tldr --color"
-
-alias yay="yay --color always"
-alias emacs="emacs -nw"
-alias gdb="gdb -q"
+alias set-wallpaper="Superpaper-2.2.1-x86_64.AppImage -s"
+#alias emacs="emacs -nw"
 
 path+="/home/rmg/.config/emacs/bin"
 path+="/home/rmg/go/bin"
 path+="/home/rmg/programs/julia/bin"
 path+="/home/rmg/programs"
 path+="/home/rmg/.local/bin/"
-path+="/home/rmg/.roswell/bin/"
-path+="/usr/games/"
+path+="/home/rmg/.qlot/bin/"
 
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
@@ -100,7 +96,6 @@ export NVM_DIR="$HOME/.nvm"
 export VIRTUALENVWRAPPER_PYTHON=/usr/bin/python
 export WORKON_HOME=~/virtualenv/
 export VIRTUALENVWRAPPER_VIRTUALENV=/usr/bin/virtualenv
-export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig/
 source /usr/bin/virtualenvwrapper.sh
 
 
@@ -122,7 +117,33 @@ setopt PROMPT_SUBST PROMPT_PERCENT
 
 # Display a "we are in a virtualenv" indicator that works in child shells too
 VIRTUAL_ENV_DISABLE_PROMPT=1
-RPS1='$(zsh_virtualenv_prompt)'
-workon base
 
-source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+# Fuck conda, all my homies hate conda
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+#__conda_setup="$('/home/rmg/programs/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+#if [ $? -eq 0 ]; then
+#    eval "$__conda_setup"
+#else
+#    if [ -f "/home/rmg/programs/miniconda3/etc/profile.d/conda.sh" ]; then
+#        . "/home/rmg/programs/miniconda3/etc/profile.d/conda.sh"
+#    else
+#        export PATH="/home/rmg/programs/miniconda3/bin:$PATH"
+#    fi
+#fi
+#unset __conda_setup
+# <<< conda initialize <<<
+
+RPS1='$(zsh_virtualenv_prompt)'
+
+update_discord() {
+    pushd $HOME/Downloads
+    DISCORD_LATEST=`ls discord* | tail -n 1`
+    rm -rf Discord/*
+    tar xvf $DISCORD_LATEST
+    sudo cp -r Discord/* /opt/discord
+    popd
+}
+
+workon base
+fortune
