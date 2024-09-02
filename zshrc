@@ -90,6 +90,7 @@ path+="/home/rmg/go/bin"
 path+="/home/rmg/programs/julia/bin"
 path+="/home/rmg/programs"
 path+="/home/rmg/.local/bin/"
+path+="/home/rmg/.qlot/bin/"
 path+="/home/rmg/.roswell/bin/"
 path+="/usr/games/"
 

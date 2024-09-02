@@ -12,11 +12,10 @@
   (uiop:chdir path)
   (setf *default-pathname-defaults* (truename path)))
 
-(when (and (interactive-stream-p *terminal-io*) (not (member "--no-linedit" (uiop:command-line-arguments) :test #'equalp)))
-  (ql:quickload '(linedit alexandria serapeum)  :silent t)
-  (defpackage #:rmg
-    (:use :cl :cl-user :alexandria :serapeum))
-  (in-package #:rmg)
-  (funcall (intern "INSTALL-REPL" :linedit) :wrap-current t :eof-quits t))
-
-
+#-ocicl
+(when (probe-file #P"/home/rmg/.local/share/ocicl/ocicl-runtime.lisp")
+  (load #P"/home/rmg/.local/share/ocicl/ocicl-runtime.lisp"))
+#+ocicl
+(progn
+  (pushnew #p"~/code/lisp/" asdf:*central-registry* :test 'equalp)
+  (asdf:initialize-source-registry '(:source-registry :inherit-configuration (:tree #p"~/code/lisp/"))))
