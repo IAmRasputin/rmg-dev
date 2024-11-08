@@ -37,6 +37,7 @@ Plug 'Raimondi/delimitMate'
 Plug 'majutsushi/tagbar'
 Plug 'Yggdroot/indentLine'
 Plug 'tpope/vim-rhubarb' " required by fugitive to :Gbrowse
+Plug 'EdenEast/nightfox.nvim'
 
 Plug 'numToStr/FTerm.nvim'
 
@@ -91,7 +92,6 @@ Plug 'ray-x/lsp_signature.nvim'
 
 " clj
 " Plug 'dense-analysis/ale'
-Plug 'Olical/conjure'
 Plug 'guns/vim-sexp'
 Plug 'guns/vim-clojure-static'
 Plug 'tpope/vim-sexp-mappings-for-regular-people'
@@ -103,8 +103,6 @@ Plug 'clojure-vim/vim-jack-in'
 Plug 'radenling/vim-dispatch-neovim'
 
 let g:rainbow_active=1
-let g:ale_linters = { 'clojure': ['clj-kondo']}
-let g:ale_pattern_options = {'conjure-log*': {'ale_enabled': 0}}
 
 "
 "" For vsnip users.
@@ -116,9 +114,18 @@ Plug 'rafamadriz/friendly-snippets'
 Plug 'hkupty/iron.nvim'
 Plug 'windwp/nvim-ts-autotag'
 
-Plug 'vlime/vlime', {'rtp': 'vim/'}
-
 Plug 'mfussenegger/nvim-jdtls'
+
+" Lisp, again.
+"Plug 'kovisoft/slimv'
+" lol, lmao
+"Plug 'vlime/vlime'
+"Plug 'HiPhish/nvim-cmp-vlime'
+Plug 'kovisoft/paredit'
+
+" nvlime?
+Plug 'monkoose/parsley'
+Plug 'monkoose/nvlime'
 
 call plug#end()
 
@@ -152,11 +159,13 @@ set shiftwidth=4
 set expandtab
 
 "" Map leader to space
-nnoremap <SPACE> <Nop>
-let mapleader=" "
+"nnoremap <SPACE> <Nop>
+"let mapleader=" "
+"let g:slimv_leader=','
+" or not?  not getting much use here actually
 
 nnoremap <Leader><Space> <cmd>IronFocus<cr>a
-let maplocalleader=" "
+"let maplocalleader=" "
 
 "" Enable hidden buffers
 set hidden
@@ -184,7 +193,7 @@ set ruler
 set number
 
 let no_buffers_menu=1
-colorscheme gruvbox-material
+colorscheme nightfox
 
 " Better command line completion 
 set wildmenu
@@ -264,7 +273,7 @@ let g:nerdtree_tabs_focus_on_files=1
 let g:NERDTreeMapOpenInTabSilent = '<RightMouse>'
 let g:NERDTreeWinSize = 50
 set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*.pyc,*.db,*.sqlite,*node_modules/
-nnoremap <silent> <F1> :NERDTreeFocus<CR>
+"nnoremap <silent> <F1> :NERDTreeFocus<CR>
 nnoremap <silent> <F2> :NERDTreeFind<CR>
 nnoremap <silent> <F3> :NERDTreeToggle<CR>
 
@@ -388,9 +397,6 @@ noremap <leader>q :bp<CR>
 noremap <Tab> :bn<CR>
 noremap <leader>w :bn<CR>
 
-"" Close buffer
-noremap <leader>c :bd<CR>
-
 "" Switching windows
 noremap <C-j> <C-w>j
 noremap <C-k> <C-w>k
@@ -411,6 +417,11 @@ nnoremap <Leader>o :.Gbrowse<CR>
 "*****************************************************************************
 "" Custom configs
 "*****************************************************************************
+
+" Lisp
+"let g:slimv_swank_cmd = '! tmux new-window -d -n SBCL-REPL "sbcl --load ~/.config/nvim/plugged/slimv/slime/start-swank.lisp"'
+"let g:slimv_repl_split = 2
+
 
 " gdscript
 augroup vimrc-gdscript
@@ -443,14 +454,13 @@ augroup vimrc-javascript
     autocmd FileType jsx setlocal expandtab tabstop=2 shiftwidth=2 
 augroup END
 
-" Clojure (maybe for other lisps too idk)
+" Common Lisp (maybe for other lisps too idk)
 augroup vimrc-lisp
     autocmd!
-    autocmd FileType clojure let b:delimitMate_quotes='"'
-    autocmd FileType clojure let b:delimitMate_excluded_regions="Comment,String"
-    autocmd FileType clojure let b:delimitMate_smart_quotes=1
-    autocmd FileType clojure let g:sexp_enable_insert_mode_mappings=0
-    autocmd FileType lisp let g:sexp_enable_insert_mode_mappings=0
+    autocmd FileType lisp let b:delimitMate_quotes='"'
+    autocmd FileType lisp let b:delimitMate_excluded_regions="Comment,String"
+    autocmd FileType lisp let b:delimitMate_smart_quotes=1
+    "" ??  autocmd FileType lisp let g:sexp_enable_insert_mode_mappings=0
 augroup END
 
 

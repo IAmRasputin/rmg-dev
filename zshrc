@@ -80,7 +80,9 @@ source $ZSH/oh-my-zsh.sh
 
 alias vim=nvim
 alias set-wallpaper="Superpaper-2.2.1-x86_64.AppImage -s"
-#alias emacs="emacs -nw"
+alias emacs="emacs -nw"
+alias mutt=neomutt
+alias docker=podman
 
 path+="/home/rmg/.config/emacs/bin"
 path+="/home/rmg/go/bin"

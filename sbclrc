@@ -11,3 +11,13 @@
 (defun :cd (path)
   (uiop:chdir path)
   (setf *default-pathname-defaults* (truename path)))
+
+#-ocicl
+(when (probe-file #P"/home/rmg/.local/share/ocicl/ocicl-runtime.lisp")
+  (load #P"/home/rmg/.local/share/ocicl/ocicl-runtime.lisp"))
+
+#+ocicl
+(progn
+  (pushnew #p"~/code/Lisp/" asdf:*central-registry* :test 'equalp)
+  (pushnew (uiop:getcwd) asdf:*central-registry* :test 'equalp)
+  (asdf:initialize-source-registry '(:source-registry :inherit-configuration (:tree #p"~/code/Lisp/"))))

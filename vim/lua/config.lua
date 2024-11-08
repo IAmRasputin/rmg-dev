@@ -191,6 +191,7 @@ cmp.setup({
     sources = cmp.config.sources({
         { name = 'nvim_lsp' },
         { name = 'vsnip' },
+        { name = 'path' },
     }, {
         { name = 'buffer' },
         { name = 'git' },
@@ -206,6 +207,12 @@ cmp.setup.filetype('gitcommit', {
     }, {
         { name = 'buffer' },
     })
+})
+
+cmp.setup.filetype({'lisp'}, {
+    sources = {
+        {name = 'nvlime'}
+    }
 })
 
 -- Use buffer source for `/` and `?` (if you enabled `native_menu`, this won't work anymore).
@@ -333,9 +340,6 @@ iron.setup {
       sh = {
         command = {"zsh"}
       },
-      lisp = {
-          command = { "sbcl" }
-      },
       scheme = {
           command = { "rlwrap", "guile" }
       },
@@ -375,13 +379,6 @@ vim.keymap.set('n', '<space>rs', '<cmd>IronRepl<cr>')
 vim.keymap.set('n', '<space>rr', '<cmd>IronRestart<cr>')
 vim.keymap.set('n', '<leader><space>', '<cmd>IronFocus<cr>a')
 vim.keymap.set('n', '<space>rh', '<cmd>IronHide<cr>')
-
-vim.api.nvim_create_autocmd("BufNewFile", {
-    group = vim.api.nvim_create_augroup("conjure_log_disable_lsp", { clear = true }),
-    pattern = { "conjure-log-*" },
-    callback = function() vim.diagnostic.disable(0) end,
-    desc = "Conjure Log disable LSP diagnostics",
-})
 
 local rocks_config = {
     rocks_path = vim.env.HOME .. "/.local/share/nvim/rocks",
