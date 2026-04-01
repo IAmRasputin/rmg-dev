@@ -1,4 +1,4 @@
-require'nvim-treesitter.configs'.setup {
+require'nvim-treesitter.config'.setup {
     -- A list of parser names, or "all"
     ensure_installed = { "c", "lua", "rust", "go", "python", "bash", "commonlisp", "dockerfile", "sql", "vim", "javascript", "vue" },
 
@@ -126,7 +126,7 @@ require("clangd_extensions").setup {
 }
 
 -- Set up nvim-cmp.
-local cmp = require'cmp'
+local cmp = require("cmp")
 
 local has_words_before = function()
   local line, col = unpack(vim.api.nvim_win_get_cursor(0))
@@ -148,8 +148,8 @@ cmp.setup({
         end,
     },
     window = {
-        completion = cmp.config.window.bordered(),
-        documentation = cmp.config.window.bordered(),
+        completion = cmp.config.window.bordered({border = "rounded"}),
+        documentation = cmp.config.window.bordered({border = "rounded"}),
     },
     sorting = {
         comparators = {
@@ -192,6 +192,7 @@ cmp.setup({
         { name = 'nvim_lsp' },
         { name = 'vsnip' },
         { name = 'path' },
+        { name = 'nvlime' },
     }, {
         { name = 'buffer' },
         { name = 'git' },
@@ -209,6 +210,9 @@ cmp.setup.filetype('gitcommit', {
     })
 })
 
+vim.g.nvlime_config = {
+  cmp = { enabled = true },
+}
 cmp.setup.filetype({'lisp'}, {
     sources = {
         {name = 'nvlime'}
@@ -262,24 +266,27 @@ local on_attach = function(client, bufnr)
 end
 
 -- Setup lspconfig.
-local nvim_lsp = require('lspconfig')
+-- local nvim_lsp = require('lspconfig')
 
 -- setup languages 
 -- GDScript
-nvim_lsp.gdscript.setup{
+vim.lsp.config("gdscript", {
     capabilities = require('cmp_nvim_lsp').default_capabilities(vim.lsp.protocol.make_client_capabilities())
-}
+})
+vim.lsp.enable({"gdscript"})
 
 -- Python
-nvim_lsp['pylsp'].setup{
+vim.lsp.config("pylsp", {
   cmd = {'pylsp'},
-  on_attach = on_attach,
+  -- on_attach = on_attach,
   capabilities = capabilities,
-}
+})
+vim.lsp.enable({"pylsp"})
+
 -- GoLang
-nvim_lsp['gopls'].setup{
+vim.lsp.config("gopls", {
   cmd = {'gopls', '--remote=auto'},
-  on_attach = on_attach,
+  -- on_attach = on_attach,
   capabilities = capabilities,
   settings = {
     gopls = {
@@ -294,29 +301,24 @@ nvim_lsp['gopls'].setup{
   init_options = {
     usePlaceholders = true,
   }
-}
--- typescript
-nvim_lsp['tsserver'].setup{
-    cmd = { "typescript-language-server", "--stdio" },
-    on_attach = on_attach,
-    capabilities = capabilities,
-    filetypes = { "javascript", "javascriptreact", "javascript.jsx", "typescript", "typescriptreact", "typescript.tsx" },
-}
+})
+vim.lsp.enable({"gopls"})
 
-nvim_lsp['clojure_lsp'].setup{
+vim.lsp.config("clojure_lsp", {
     cmd = { "clojure-lsp" },
     filetypes = { "clojure", "edn" },
-    on_attach = on_attach,
+    -- on_attach = on_attach,
     capabilities = capabilities,
-    root_dir = nvim_lsp.util.root_pattern("project.clj", "deps.edn", "build.boot", "shadow-cljs.edn", ".git", "bb.edn"),
-}
+    root_markers = {"project.clj", "deps.edn", "build.boot", "shadow-cljs.edn", ".git", "bb.edn"},
+})
+vim.lsp.enable({"clojure_lsp"})
 
-nvim_lsp["clangd"].setup{
+vim.lsp.config("clangd", {
     capabilities = capabilities,
     cmd = {"clangd"},
     filetypes = { "c", "cpp", "objc", "objcpp", "cuda", "proto" },
-    on_attach = on_attach,
-    root_dir = nvim_lsp.util.root_pattern(
+    -- on_attach = on_attach,
+    root_markers = {
         '.clangd',
         '.clang-tidy',
         '.clang-format',
@@ -324,9 +326,21 @@ nvim_lsp["clangd"].setup{
         'compile_flags.txt',
         'configure.ac'
         -- '.git'
-    ),
+    },
     single_file_support = true
-}
+})
+vim.lsp.enable({"clangd"})
+
+vim.lsp.config('rust_analyzer', {
+    settings = {
+        ['rust_analyzer'] = {
+            diagnostics = {
+                enable = false;
+            }
+        }
+    }
+})
+vim.lsp.enable({"rust_analyzer"})
 
 local iron = require('iron.core')
 
@@ -337,14 +351,17 @@ iron.setup {
     close_window_on_exit = true,
     -- Your repl definitions come here
     repl_definition = {
-      sh = {
-        command = {"zsh"}
-      },
-      scheme = {
-          command = { "rlwrap", "guile" }
-      },
-      python = require("iron.fts.python").ipython,
-      
+        sh = {
+            command = {"zsh"}
+        },
+        scheme = {
+            command = { "rlwrap", "guile" }
+        },
+        lisp = {
+            command = { "cl-repl" }
+        },
+        python = require("iron.fts.python").ipython,
+
     },
     -- How the repl window will be displayed
     -- See below for more information
@@ -406,4 +423,71 @@ package.cpath = package.cpath .. ";" .. table.concat(luarocks_cpath, ";")
 
 vim.opt.runtimepath:append(vim.fs.joinpath(rocks_config.rocks_path, "lib", "luarocks", "rocks-5.1", "rocks.nvim", "*"))
 
-require("neorg").setup()
+-- require("neorg").setup()
+
+require('telescope').load_extension('fzf')
+require('telescope').load_extension('file_browser')
+require('telescope').setup {
+  extensions = {
+    fzf = {
+      fuzzy = true,                    -- false will only do exact matching
+      override_generic_sorter = true,  -- override the generic sorter
+      override_file_sorter = true,     -- override the file sorter
+      case_mode = "smart_case",        -- or "ignore_case" or "respect_case"
+    },
+    file_browser = {}
+  }
+}
+
+-- image.nvim
+-- require("image").setup({
+--   backend = "ueberzug", -- or "ueberzug" or "sixel"
+--   processor = "magick_cli", -- or "magick_rock"
+--   integrations = {
+--     markdown = {
+--       enabled = true,
+--       clear_in_insert_mode = false,
+--       download_remote_images = true,
+--       only_render_image_at_cursor = false,
+--       only_render_image_at_cursor_mode = "popup", -- or "inline"
+--       floating_windows = false, -- if true, images will be rendered in floating markdown windows
+--       filetypes = { "markdown", "vimwiki" }, -- markdown extensions (ie. quarto) can go here
+--     },
+--     asciidoc = {
+--       enabled = true,
+--       clear_in_insert_mode = false,
+--       download_remote_images = true,
+--       only_render_image_at_cursor = false,
+--       only_render_image_at_cursor_mode = "popup",
+--       floating_windows = false,
+--       filetypes = { "asciidoc", "adoc" },
+--     },
+--     neorg = {
+--       enabled = true,
+--       filetypes = { "norg" },
+--     },
+--     rst = {
+--       enabled = true,
+--     },
+--     typst = {
+--       enabled = true,
+--       filetypes = { "typst" },
+--     },
+--     html = {
+--       enabled = false,
+--     },
+--     css = {
+--       enabled = false,
+--     },
+--   },
+--   max_width = 100,
+--   max_height = 12,
+--   max_width_window_percentage = nil,
+--   max_height_window_percentage = 50,
+--   scale_factor = 1.0,
+--   window_overlap_clear_enabled = false, -- toggles images when windows are overlapped
+--   window_overlap_clear_ft_ignore = { "cmp_menu", "cmp_docs", "snacks_notif", "scrollview", "scrollview_sign" },
+--   editor_only_render_when_focused = false, -- auto show/hide images when the editor gains/looses focus
+--   tmux_show_only_in_active_window = false, -- auto show/hide images in the correct Tmux window (needs visual-activity off)
+--   hijack_file_patterns = { "*.png", "*.jpg", "*.jpeg", "*.gif", "*.webp", "*.avif" }, -- render image files as images when opened
+-- })

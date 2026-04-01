@@ -5,6 +5,9 @@
   (when (probe-file quicklisp-init)
     (load quicklisp-init)))
 
+(setf *compile-verbose* nil) ;; shh!
+(declaim (sb-ext:muffle-conditions cl:warning)) ;; might be bad idk lol
+
 #+quicklisp
 (push #p"~/code/Lisp/" ql:*local-project-directories*)
 
@@ -21,3 +24,11 @@
   (pushnew #p"~/code/Lisp/" asdf:*central-registry* :test 'equalp)
   (pushnew (uiop:getcwd) asdf:*central-registry* :test 'equalp)
   (asdf:initialize-source-registry '(:source-registry :inherit-configuration (:tree #p"~/code/Lisp/"))))
+
+(if (member "--no-linedit" sb-ext:*posix-argv* :test 'equal)
+    (setf sb-ext:*posix-argv* 
+	  (remove "--no-linedit" sb-ext:*posix-argv* :test 'equal))
+    (when (interactive-stream-p *terminal-io*)
+      (require :sb-aclrepl)
+      (require :linedit)
+      (funcall (intern "INSTALL-REPL" :linedit) :wrap-current t :eof-quits t)))

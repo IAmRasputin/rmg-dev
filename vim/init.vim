@@ -23,15 +23,12 @@ call plug#begin(expand('~/.config/nvim/plugged'))
 "*****************************************************************************
 "" Plug install packages
 "*****************************************************************************
-Plug 'scrooloose/nerdtree'
-Plug 'jistr/vim-nerdtree-tabs'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-fugitive'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'airblade/vim-gitgutter'
-Plug 'vim-scripts/grep.vim'
-Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
+"Plug 'vim-scripts/grep.vim'
 Plug 'vim-scripts/CSApprox'
 Plug 'Raimondi/delimitMate'
 Plug 'majutsushi/tagbar'
@@ -64,6 +61,12 @@ Plug 'kblin/vim-fountain'
 
 Plug 'JuliaEditorSupport/julia-vim'
 Plug 'p00f/clangd_extensions.nvim'
+Plug 'nvim-lua/plenary.nvim'
+Plug 'nvim-telescope/telescope.nvim' 
+Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release' } 
+Plug 'nvim-telescope/telescope-file-browser.nvim'
+
+Plug 'hashivim/vim-terraform'
 
 let g:make = 'gmake'
 if exists('make')
@@ -89,20 +92,21 @@ Plug 'hrsh7th/cmp-cmdline'
 Plug 'hrsh7th/nvim-cmp'
 "
 Plug 'ray-x/lsp_signature.nvim'
-
 " clj
 " Plug 'dense-analysis/ale'
 Plug 'guns/vim-sexp'
 Plug 'guns/vim-clojure-static'
-Plug 'tpope/vim-sexp-mappings-for-regular-people'
+"Plug 'tpope/vim-sexp-mappings-for-regular-people'
 Plug 'luochen1990/rainbow'
 
 Plug 'tpope/vim-dispatch'
-Plug 'clojure-vim/vim-jack-in'
+"Plug 'clojure-vim/vim-jack-in'
 " Only in Neovim:
 Plug 'radenling/vim-dispatch-neovim'
 
 let g:rainbow_active=1
+
+"Plug 'mphe/vim-gdscript4'
 
 "
 "" For vsnip users.
@@ -119,21 +123,34 @@ Plug 'mfussenegger/nvim-jdtls'
 " Lisp, again.
 "Plug 'kovisoft/slimv'
 " lol, lmao
-"Plug 'vlime/vlime'
-"Plug 'HiPhish/nvim-cmp-vlime'
 Plug 'kovisoft/paredit'
+Plug 'vlime/vlime'
+Plug 'HiPhish/nvim-cmp-vlime'
+"Plug 'Olical/conjure'
+
+" Go
+Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 
 " nvlime?
 Plug 'monkoose/parsley'
 Plug 'monkoose/nvlime'
 
+" magma
+" Plug 'dccsillag/magma-nvim', { 'do': ':UpdateRemotePlugins' }
+" jk I guess molten is the new newness
+"Plug '3rd/image.nvim'
+"Plug 'benlubas/molten-nvim', { 'do': ':UpdateRemotePlugins' }
+"let g:molten_image_provider = 'image.nvim'
+"let g:molten_output_win_max_height = 20
+
+" Rust
+Plug 'rust-lang/rust.vim'
+
+
 call plug#end()
 
 lua require('config')
 set completeopt=menu,menuone,noinsert,noselect
-
-" Let nvim-cmp take care of completion over vim-go
-let g:go_code_completion_enabled = 0
 
 " Required:
 filetype plugin indent on
@@ -146,8 +163,8 @@ set encoding=utf-8
 set fileencoding=utf-8
 set fileencodings=utf-8
 
-"" iron
-tnoremap <Esc> <C-\><C-n><C-W>p
+"" Let me esc in terminal mode
+tnoremap <Esc> <C-\><C-n>
 
 "" Fix backspace indent
 set backspace=indent,eol,start
@@ -159,13 +176,12 @@ set shiftwidth=4
 set expandtab
 
 "" Map leader to space
-"nnoremap <SPACE> <Nop>
-"let mapleader=" "
+nnoremap <SPACE> <Nop>
+let mapleader=" "
 "let g:slimv_leader=','
-" or not?  not getting much use here actually
 
 nnoremap <Leader><Space> <cmd>IronFocus<cr>a
-"let maplocalleader=" "
+let maplocalleader=" "
 
 "" Enable hidden buffers
 set hidden
@@ -184,6 +200,16 @@ else
     set shell=/bin/zsh
 end
 
+"vsnip
+imap <expr> <Tab>   vsnip#jumpable(1)   ? '<Plug>(vsnip-jump-next)'      : '<Tab>'
+smap <expr> <Tab>   vsnip#jumpable(1)   ? '<Plug>(vsnip-jump-next)'      : '<Tab>'
+imap <expr> <S-Tab> vsnip#jumpable(-1)  ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
+smap <expr> <S-Tab> vsnip#jumpable(-1)  ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
+
+"quickfix navigation
+map <C-n> :cnext<CR>
+map <C-m> :cprevious<CR>
+map <leader>a :cclose<CR>
 
 "*****************************************************************************
 "" Visual Settings
@@ -203,7 +229,7 @@ set mouse=a
 
 set mousemodel=popup
 set t_Co=256
-set guioptions=egmrti
+" set guioptions=egmrti
 set gfn=Monospace\ 10
 
 let g:CSApprox_loaded = 1
@@ -264,27 +290,8 @@ cnoreabbrev W w
 cnoreabbrev Q q
 cnoreabbrev Qall qall
 
-"" NERDTree configuration
-let g:NERDTreeChDirMode=3
-let g:NERDTreeIgnore=['node_modules','\.rbc$', '\~$', '\.pyc$', '\.db$', '\.sqlite$', '__pycache__']
-let g:NERDTreeSortOrder=['^__\.py$', '\/$', '*', '\.swp$', '\.bak$', '\~$']
-let g:NERDTreeShowBookmarks=1
-let g:nerdtree_tabs_focus_on_files=1
-let g:NERDTreeMapOpenInTabSilent = '<RightMouse>'
-let g:NERDTreeWinSize = 50
-set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*.pyc,*.db,*.sqlite,*node_modules/
-"nnoremap <silent> <F1> :NERDTreeFocus<CR>
-nnoremap <silent> <F2> :NERDTreeFind<CR>
-nnoremap <silent> <F3> :NERDTreeToggle<CR>
-
-" grep.vim
-nnoremap <silent> <leader>f :Rgrep<CR>
-let Grep_Default_Options = '-nir'
-let Grep_Skip_Files = '*.log *.db'
-let Grep_Skip_Dirs = '.git node_modules'
-
 " terminal emulation
-nnoremap <silent> <leader>sh :terminal<CR>
+nnoremap <silent> <leader>sh :botright terminal<CR>
 
 
 "*****************************************************************************
@@ -301,6 +308,8 @@ if !exists('*s:setupWrapping')
     set wrap
     set wm=2
     set textwidth=79
+    set breakindent
+    set linebreak
   endfunction
 endif
 
@@ -323,6 +332,7 @@ augroup END
 augroup vimrc-wrapping
   autocmd!
   autocmd BufRead,BufNewFile *.txt call s:setupWrapping()
+  autocmd BufRead,BufNewFile *.md call s:setupWrapping()
 augroup END
 
 "" make/cmake
@@ -338,19 +348,8 @@ set autoread
 "" Mappings
 "*****************************************************************************
 
-"" Split
-noremap <Leader>h :<C-u>split<CR>
-noremap <Leader>v :<C-u>vsplit<CR>
-
-"" Git
-noremap <Leader>ga :Gwrite<CR>
-noremap <Leader>gc :Git commit --verbose<CR>
-noremap <Leader>gsh :Git push<CR>
-noremap <Leader>gll :Git pull<CR>
-noremap <Leader>gs :Git<CR>
-noremap <Leader>gb :Git blame<CR>
-noremap <Leader>gd :Gvdiffsplit<CR>
-noremap <Leader>gr :GRemove<CR>
+"" Go
+" moved to ftplugin
 
 "" Tabs
 nnoremap <Leader><Tab> gt
@@ -414,6 +413,24 @@ vnoremap K :m '<-2<CR>gv=gv
 "" Open current line on GitHub
 nnoremap <Leader>o :.Gbrowse<CR>
 
+" Find files using Telescope command-line sugar.
+nnoremap <leader>ff <cmd>Telescope find_files<cr>
+nnoremap <leader>fg <cmd>Telescope live_grep<cr>
+nnoremap <leader>fb <cmd>Telescope buffers<cr>
+nnoremap <leader>fh <cmd>Telescope help_tags<cr>
+nnoremap <leader>ft <cmd>Telescope file_browser<cr>
+
+" Magma (ipynb)
+"nnoremap <silent><expr> <LocalLeader>meo  :MagmaEvaluateOperator<CR>
+"nnoremap <silent>       <LocalLeader>mel :MagmaEvaluateLine<CR>
+"xnoremap <silent>       <LocalLeader>mev  :<C-u>MagmaEvaluateVisual<CR>
+"nnoremap <silent>       <LocalLeader>mrc :MagmaReevaluateCell<CR>
+"nnoremap <silent>       <LocalLeader>md :MagmaDelete<CR>
+"nnoremap <silent>       <LocalLeader>ms :MagmaShowOutput<CR>
+
+"let g:magma_automatically_open_output = v:false
+"let g:magma_image_provider = "ueberzug"
+
 "*****************************************************************************
 "" Custom configs
 "*****************************************************************************
@@ -421,6 +438,7 @@ nnoremap <Leader>o :.Gbrowse<CR>
 " Lisp
 "let g:slimv_swank_cmd = '! tmux new-window -d -n SBCL-REPL "sbcl --load ~/.config/nvim/plugged/slimv/slime/start-swank.lisp"'
 "let g:slimv_repl_split = 2
+"let g:nvlime_config.cmp.enabled = 1
 
 
 " gdscript

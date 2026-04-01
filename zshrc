@@ -79,17 +79,19 @@ source $ZSH/oh-my-zsh.sh
 # User configuration
 
 alias vim=nvim
-alias set-wallpaper="Superpaper-2.2.1-x86_64.AppImage -s"
 alias emacs="emacs -nw"
+alias set-wallpaper="Superpaper-2.2.1-x86_64.AppImage -s"
 alias mutt=neomutt
 alias docker=podman
 
-path+="/home/rmg/.config/emacs/bin"
-path+="/home/rmg/go/bin"
-path+="/home/rmg/programs/julia/bin"
-path+="/home/rmg/programs"
-path+="/home/rmg/.local/bin/"
-path+="/home/rmg/.qlot/bin/"
+
+path=("/home/rmg/.config/emacs/bin" $path)
+path=("/home/rmg/go/bin" $path)
+path=("/home/rmg/programs/julia/bin" $path)
+path=("/home/rmg/programs" $path)
+path=("/home/rmg/.local/bin" $path)
+path=("/home/rmg/.cargo/bin" $path)
+path=("/home/rmg/.qlot/bin" $path)
 
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
@@ -146,6 +148,8 @@ update_discord() {
     sudo cp -r Discord/* /opt/discord
     popd
 }
+
+export PATH
 
 workon base
 fortune

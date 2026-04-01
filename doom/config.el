@@ -6,8 +6,8 @@
 
 ;; Some functionality uses this to identify you, e.g. GPG configuration, email
 ;; clients, file templates and snippets. It is optional.
-(setq user-full-name "Ryan Gannon"
-      user-mail-address "ryanmgannon@gmail.com")
+;; (setq user-full-name "John Doe"
+;;       user-mail-address "john@doe.com")
 
 ;; Doom exposes five (optional) variables for controlling fonts in Doom:
 ;;
@@ -15,7 +15,7 @@
 ;; - `doom-variable-pitch-font' -- a non-monospace font (where applicable)
 ;; - `doom-big-font' -- used for `doom-big-font-mode'; use this for
 ;;   presentations or streaming.
-;; - `doom-unicode-font' -- for unicode glyphs
+;; - `doom-symbol-font' -- for symbols
 ;; - `doom-serif-font' -- for the `fixed-pitch-serif' face
 ;;
 ;; See 'C-h v doom-font' for documentation and more examples of what they
@@ -41,114 +41,6 @@
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
 (setq org-directory "~/org/")
-
-(setq sly-command-switch-to-existing-lisp 'always)
-
-(setq flex-score-minimum 1)
-
-(defun my-flex-completions (pattern)
-  "Return (COMPLETIONS NIL) where COMPLETIONS flex-complete PATTERN.
-COMPLETIONS is a list of propertized strings."
-  (cl-loop with (completions _) =
-           (sly--completion-request-completions pattern 'slynk-completion:flex-completions)
-           for (completion score chunks classification suggestion) in completions
-           when (> score flex-score-minimum)
-           do
-           (progn
-             (cl-loop for (pos substring) in chunks
-                      do (put-text-property pos (+ pos
-                                                   (length substring))
-                                            'face
-                                            'completions-first-difference
-                                            completion)
-                      collect `(,pos . ,(+ pos (length substring))) into chunks-2
-                      finally (put-text-property 0 (length completion)
-                                                 'sly-completion-chunks chunks-2
-                                                 completion))
-             (add-text-properties 0
-                                  (length completion)
-                                  `(sly--annotation
-                                    ,(format "%s %5.2f%%"
-                                             classification
-                                             (* score 100))
-                                    sly--suggestion
-                                    ,suggestion)
-                                  completion))
-
-           collect completion into formatted
-           finally return (list formatted nil)))
-
-(after! sly
-  (setq sly-complete-symbol-function 'sly-flex-completions))
-
-
-;; Logz
-;(load "~/quicklisp/log4sly-setup.el")
-;(global-log4sly-mode 1)
-
-(eval-after-load 'sly-mrepl
-  `(define-key sly-mrepl-mode-map (kbd "<return>") 'sly-mrepl-return))
-(eval-after-load 'sly-mrepl
-  `(define-key sly-mrepl-mode-map (kbd "RET") 'sly-mrepl-return))
-(eval-after-load 'sly-mrepl
-  `(define-key sly-mrepl-mode-map (kbd "C-<return>") 'newline-and-indent))
-(eval-after-load 'sly-mrepl
-  `(define-key sly-mrepl-mode-map (kbd "C-RET") 'newline-and-indent))
-
-
-
-;(setq inferior-lisp-program "sbcl --noinform")
-;(setq inferior-lisp-program "/home/rmg/code/Lisp/rmg.image")
-
-(after! vterm
-  (set-popup-rule! "*doom:vterm-popup:main" :size 0.25 :vslot -4 :select t :quit nil :ttl 0 :side 'right :width 120)
-  )
-(map!
- :leader
- :map lisp-mode
- (:prefix ("k" . "lisp")
-  :desc "evil jump item"                          "%" #'evil-jump-item
-  :desc "ex command"                              ":" #'evil-ex
-  :desc "Insert expr before (same level)"         "(" #'lisp-state-insert-sexp-before
-  :desc "Insert expr after (same level)"          ")" #'lisp-state-insert-sexp-after
-  :desc "goto end of expr"                        "$" #'sp-end-of-sexp
-  :desc "goto start of expr"                      "0" #'sp-beginning-of-sexp
-  :desc "absorb expr"                             "a" #'sp-absorb-sexp
-  :desc "forward barf expr"                       "b" #'sp-forward-barf-sexp
-  :desc "backward barf expr"                      "B" #'sp-backward-barf-sexp
-  :desc "convolute expression"                    "c" #'sp-convolute-sexp
-  :desc "delete symbol"                           "ds" #'sp-delete-symbol
-  :desc "backward delete symbol"                  "Ds" #'sp-backward-delete-symbol
-  :desc "delete word"                             "dw" #'sp-delete-word
-  :desc "backward delete word"                    "Dw" #'sp-backward-delete-word
-  :desc "delete expr"                             "dx" #'sp-kill-sexp
-  :desc "backward delete expr"                    "Dx" #'sp-backward-kill-sexp
-  :desc "unwrap and kill forward"                 "e" #'sp-splice-sexp-killing-forward
-  :desc "unwrap and kill backward"                "E" #'sp-splice-sexp-killing-backward
-  :desc "previous symbol"                         "h" #'sp-backward-symbol
-  :desc "previous expr"                           "H" #'sp-backward-sexp
-  :desc "switch to insert state"                  "i" #'evil-insert-state
-  :desc "goto start of exp and insert"            "I" #'evil-insert-line
-  :desc "next close-paren"                        "j" #'lisp-state-next-closing-paren
-  :desc "join expression"                         "J" #'sp-join-sexp
-  :desc "previous open-paren"                     "k" #'lisp-state-prev-opening-paren
-  :desc "next symbol"                             "l" #'lisp-state-forward-symbol
-  :desc "goto next expr"                          "L" #'sp-forward-sexp
-  :desc "paste after"                             "p" #'evil-paste-after
-  :desc "paste before"                            "P" #'evil-paste-before
-  :desc "replace parent expr with current"        "r" #'sp-raise-sexp
-  :desc "forward slurp expr"                      "s" #'sp-forward-slurp-sexp
-  :desc "backward slurp expr"                     "S" #'sp-backward-slurp-sexp
-  :desc "transpose expr"                          "t" #'sp-transpose-sexp
-  :desc "undo"                                    "u" #'undo-tree-undo
-  :desc "goto parent expr backwards"              "U" #'sp-backward-up-sexp
-  :desc "redo"                                    "C-r" #'undo-tree-redo
-  :desc "switch to visual state"                  "v" #'evil-visual-char
-  :desc "switch to visual line state"             "V" #'evil-visual-line
-  :desc "switch to visual block state"            "C-v" #'evil-visual-block
-  :desc "wrap expr with parens"                   "w" #'sp-wrap-round
-  :desc "unwrap expression"                       "W" #'sp-unwrap-sexp
-  :desc "copy expression"                         "y" #'sp-copy-sexp))
 
 
 ;; Whenever you reconfigure a package, make sure to wrap your config in an
