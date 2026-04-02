@@ -18,4 +18,10 @@ return {
     'luochen1990/rainbow',
     'saadparwaiz1/cmp_luasnip',
     'rust-lang/rust.vim',
+    'AlexvZyl/nordic.nvim',
+    'sainnhe/sonokai',
+    'tiagovla/tokyodark.nvim',
+    'ribru17/bamboo.nvim',
+    'catppuccin/nvim',
+    'rebelot/kanagawa.nvim',
 }
