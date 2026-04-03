@@ -1,6 +1,10 @@
-require'nvim-treesitter.configs'.setup {
+require'nvim-treesitter.config'.setup {
     -- A list of parser names, or "all"
     ensure_installed = { "c", "lua", "rust", "go", "python", "bash", "commonlisp", "dockerfile", "sql", "vim", "javascript", "vue" },
+
+    indent = {
+        enable = true,
+    },
 
     -- Install parsers synchronously (only applied to `ensure_installed`)
     sync_install = false,
@@ -14,6 +18,7 @@ require'nvim-treesitter.configs'.setup {
 
     autotag = {
         enable = true,
+        enable_close_on_slash = false,
     },
 
     ---- If you need to change the installation directory of the parsers (see -> Advanced Setup)
@@ -61,7 +66,7 @@ require("clangd_extensions").setup {
             max_len_align_padding = 1,
             -- whether to align to the extreme right or not
             right_align = false,
-            -- padding from the right if right_align is true
+           -- padding from the right if right_align is true
             right_align_padding = 7,
             -- The color of the hints
             highlight = "Comment",
@@ -112,16 +117,16 @@ require("clangd_extensions").setup {
             },
         },
         memory_usage = {
-            border = "rounded",
+            border = "none",
         },
         symbol_info = {
-            border = "rounded",
+            border = "none",
         },
     },
 }
 
 -- Set up nvim-cmp.
-local cmp = require'cmp'
+local cmp = require("cmp")
 
 local has_words_before = function()
   local line, col = unpack(vim.api.nvim_win_get_cursor(0))
@@ -138,14 +143,13 @@ cmp.setup({
         completeopt = 'menu,menuone,noselect,noinsert'
     },
     snippet = {
-        -- REQUIRED - you must specify a snippet engine
         expand = function(args)
             vim.fn["vsnip#anonymous"](args.body)
         end,
     },
     window = {
-        completion = cmp.config.window.bordered(),
-        documentation = cmp.config.window.bordered(),
+        completion = cmp.config.window.bordered({border = "rounded"}),
+        documentation = cmp.config.window.bordered({border = "rounded"}),
     },
     sorting = {
         comparators = {
@@ -155,10 +159,6 @@ cmp.setup({
             cmp.config.compare.score,
             cmp.config.compare.offset,
             cmp.config.compare.order,
-            --cmp.config.compare.exact,
-            --cmp.config.compare.kind,
-            --cmp.config.compare.sort_text,
-            --cmp.config.compare.length,
         },
     },
     mapping = cmp.mapping.preset.insert({
@@ -190,8 +190,9 @@ cmp.setup({
     }),
     sources = cmp.config.sources({
         { name = 'nvim_lsp' },
-        { name = 'path' },
         { name = 'vsnip' },
+        { name = 'path' },
+        { name = 'nvlime' },
     }, {
         { name = 'buffer' },
         { name = 'git' },
@@ -207,6 +208,15 @@ cmp.setup.filetype('gitcommit', {
     }, {
         { name = 'buffer' },
     })
+})
+
+vim.g.nvlime_config = {
+  cmp = { enabled = true },
+}
+cmp.setup.filetype({'lisp'}, {
+    sources = {
+        {name = 'nvlime'}
+    }
 })
 
 -- Use buffer source for `/` and `?` (if you enabled `native_menu`, this won't work anymore).
@@ -256,26 +266,27 @@ local on_attach = function(client, bufnr)
 end
 
 -- Setup lspconfig.
-local nvim_lsp = require('lspconfig')
+-- local nvim_lsp = require('lspconfig')
 
 -- setup languages 
 -- GDScript
-nvim_lsp.gdscript.setup{
+vim.lsp.config("gdscript", {
     capabilities = require('cmp_nvim_lsp').default_capabilities(vim.lsp.protocol.make_client_capabilities())
-}
--- Racket
-nvim_lsp['racket_langserver'].setup{
-}
+})
+vim.lsp.enable({"gdscript"})
+
 -- Python
-nvim_lsp['pylsp'].setup{
+vim.lsp.config("pylsp", {
   cmd = {'pylsp'},
-  on_attach = on_attach,
+  -- on_attach = on_attach,
   capabilities = capabilities,
-}
+})
+vim.lsp.enable({"pylsp"})
+
 -- GoLang
-nvim_lsp['gopls'].setup{
+vim.lsp.config("gopls", {
   cmd = {'gopls', '--remote=auto'},
-  on_attach = on_attach,
+  -- on_attach = on_attach,
   capabilities = capabilities,
   settings = {
     gopls = {
@@ -290,18 +301,193 @@ nvim_lsp['gopls'].setup{
   init_options = {
     usePlaceholders = true,
   }
-}
--- typescript
-nvim_lsp['tsserver'].setup{
-    cmd = { "typescript-language-server", "--stdio" },
-    on_attach = on_attach,
+})
+vim.lsp.enable({"gopls"})
+
+vim.lsp.config("clojure_lsp", {
+    cmd = { "clojure-lsp" },
+    filetypes = { "clojure", "edn" },
+    -- on_attach = on_attach,
     capabilities = capabilities,
-    filetypes = { "javascript", "javascriptreact", "javascript.jsx", "typescript", "typescriptreact", "typescript.tsx" },
+    root_markers = {"project.clj", "deps.edn", "build.boot", "shadow-cljs.edn", ".git", "bb.edn"},
+})
+vim.lsp.enable({"clojure_lsp"})
+
+vim.lsp.config("clangd", {
+    capabilities = capabilities,
+    cmd = {"clangd"},
+    filetypes = { "c", "cpp", "objc", "objcpp", "cuda", "proto" },
+    -- on_attach = on_attach,
+    root_markers = {
+        '.clangd',
+        '.clang-tidy',
+        '.clang-format',
+        'compile_commands.json',
+        'compile_flags.txt',
+        'configure.ac'
+        -- '.git'
+    },
+    single_file_support = true
+})
+vim.lsp.enable({"clangd"})
+
+vim.lsp.config('rust_analyzer', {
+    settings = {
+        ['rust_analyzer'] = {
+            diagnostics = {
+                enable = false;
+            }
+        }
+    }
+})
+vim.lsp.enable({"rust_analyzer"})
+
+local iron = require('iron.core')
+
+iron.setup {
+  config = {
+    -- Whether a repl should be discarded or not
+    scratch_repl = true,
+    close_window_on_exit = true,
+    -- Your repl definitions come here
+    repl_definition = {
+        sh = {
+            command = {"zsh"}
+        },
+        scheme = {
+            command = { "rlwrap", "guile" }
+        },
+        lisp = {
+            command = { "cl-repl" }
+        },
+        python = require("iron.fts.python").ipython,
+
+    },
+    -- How the repl window will be displayed
+    -- See below for more information
+    repl_open_cmd = require('iron.view').split.belowright(25),
+  },
+  -- Iron doesn't set keymaps by default anymore.
+  -- You can set them here or manually add keymaps to the functions in iron.core
+  keymaps = {
+    send_motion = "<space>sc",
+    visual_send = "<space>sv",
+    send_file = "<space>sf",
+    send_line = "<space>sl",
+    send_mark = "<space>sm",
+    mark_motion = "<space>mc",
+    mark_visual = "<space>mc",
+    remove_mark = "<space>md",
+    cr = "<space>s<cr>",
+    interrupt = "<space>s<space>",
+    exit = "<space>sq",
+    clear = "<space>cl",
+  },
+  -- If the highlight is on, you can change how it looks
+  -- For the available options, check nvim_set_hl
+  highlight = {
+    italic = true
+  }
 }
 
-nvim_lsp['clojure_lsp'].setup{
-    cmd = { "clojure-lsp" },
-    on_attach = on_attach,
-    capabilities = capabilities,
-    filetypes = { "clojure", "clojurescript" },
+
+-- iron also has a list of commands, see :h iron-commands for all available commands:
+vim.keymap.set('n', '<space>rs', '<cmd>IronRepl<cr>')
+vim.keymap.set('n', '<space>rr', '<cmd>IronRestart<cr>')
+vim.keymap.set('n', '<leader><space>', '<cmd>IronFocus<cr>a')
+vim.keymap.set('n', '<space>rh', '<cmd>IronHide<cr>')
+
+local rocks_config = {
+    rocks_path = vim.env.HOME .. "/.local/share/nvim/rocks",
+    luarocks_binary = vim.env.HOME .. "/.local/share/nvim/rocks/bin/luarocks",
 }
+
+vim.g.rocks_nvim = rocks_config
+
+local luarocks_path = {
+    vim.fs.joinpath(rocks_config.rocks_path, "share", "lua", "5.1", "?.lua"),
+    vim.fs.joinpath(rocks_config.rocks_path, "share", "lua", "5.1", "?", "init.lua"),
+}
+package.path = package.path .. ";" .. table.concat(luarocks_path, ";")
+
+local luarocks_cpath = {
+    vim.fs.joinpath(rocks_config.rocks_path, "lib", "lua", "5.1", "?.so"),
+    vim.fs.joinpath(rocks_config.rocks_path, "lib64", "lua", "5.1", "?.so"),
+    -- Remove the dylib and dll paths if you do not need macos or windows support
+    vim.fs.joinpath(rocks_config.rocks_path, "lib", "lua", "5.1", "?.dylib"),
+    vim.fs.joinpath(rocks_config.rocks_path, "lib64", "lua", "5.1", "?.dylib"),
+    vim.fs.joinpath(rocks_config.rocks_path, "lib", "lua", "5.1", "?.dll"),
+    vim.fs.joinpath(rocks_config.rocks_path, "lib64", "lua", "5.1", "?.dll"),
+}
+package.cpath = package.cpath .. ";" .. table.concat(luarocks_cpath, ";")
+
+vim.opt.runtimepath:append(vim.fs.joinpath(rocks_config.rocks_path, "lib", "luarocks", "rocks-5.1", "rocks.nvim", "*"))
+
+-- require("neorg").setup()
+
+require('telescope').load_extension('fzf')
+require('telescope').load_extension('file_browser')
+require('telescope').setup {
+  extensions = {
+    fzf = {
+      fuzzy = true,                    -- false will only do exact matching
+      override_generic_sorter = true,  -- override the generic sorter
+      override_file_sorter = true,     -- override the file sorter
+      case_mode = "smart_case",        -- or "ignore_case" or "respect_case"
+    },
+    file_browser = {}
+  }
+}
+
+-- image.nvim
+-- require("image").setup({
+--   backend = "ueberzug", -- or "ueberzug" or "sixel"
+--   processor = "magick_cli", -- or "magick_rock"
+--   integrations = {
+--     markdown = {
+--       enabled = true,
+--       clear_in_insert_mode = false,
+--       download_remote_images = true,
+--       only_render_image_at_cursor = false,
+--       only_render_image_at_cursor_mode = "popup", -- or "inline"
+--       floating_windows = false, -- if true, images will be rendered in floating markdown windows
+--       filetypes = { "markdown", "vimwiki" }, -- markdown extensions (ie. quarto) can go here
+--     },
+--     asciidoc = {
+--       enabled = true,
+--       clear_in_insert_mode = false,
+--       download_remote_images = true,
+--       only_render_image_at_cursor = false,
+--       only_render_image_at_cursor_mode = "popup",
+--       floating_windows = false,
+--       filetypes = { "asciidoc", "adoc" },
+--     },
+--     neorg = {
+--       enabled = true,
+--       filetypes = { "norg" },
+--     },
+--     rst = {
+--       enabled = true,
+--     },
+--     typst = {
+--       enabled = true,
+--       filetypes = { "typst" },
+--     },
+--     html = {
+--       enabled = false,
+--     },
+--     css = {
+--       enabled = false,
+--     },
+--   },
+--   max_width = 100,
+--   max_height = 12,
+--   max_width_window_percentage = nil,
+--   max_height_window_percentage = 50,
+--   scale_factor = 1.0,
+--   window_overlap_clear_enabled = false, -- toggles images when windows are overlapped
+--   window_overlap_clear_ft_ignore = { "cmp_menu", "cmp_docs", "snacks_notif", "scrollview", "scrollview_sign" },
+--   editor_only_render_when_focused = false, -- auto show/hide images when the editor gains/looses focus
+--   tmux_show_only_in_active_window = false, -- auto show/hide images in the correct Tmux window (needs visual-activity off)
+--   hijack_file_patterns = { "*.png", "*.jpg", "*.jpeg", "*.gif", "*.webp", "*.avif" }, -- render image files as images when opened
+-- })

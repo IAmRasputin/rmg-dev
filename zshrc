@@ -85,6 +85,7 @@ alias yay="yay --color always"
 alias emacs="emacs -nw"
 alias gdb="gdb -q"
 
+PATH="/usr/local/go/bin/:$PATH"
 path+="/home/rmg/.config/emacs/bin"
 path+="/home/rmg/go/bin"
 path+="/home/rmg/programs/julia/bin"

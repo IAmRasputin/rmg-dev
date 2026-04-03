@@ -1,4 +1,5 @@
-;;; The following lines added by ql:add-to-init-file:
+; slynk still needs QL even if I use OCICL
+; The following lines added by ql:add-to-init-file:
 #-quicklisp
 (let ((quicklisp-init (merge-pathnames "quicklisp/setup.lisp"
                                        (user-homedir-pathname))))
@@ -7,6 +8,8 @@
 
 #+quicklisp
 (push #p"~/code/lisp/" ql:*local-project-directories*)
+
+(require "asdf")
 
 (defun :cd (path)
   (uiop:chdir path)
