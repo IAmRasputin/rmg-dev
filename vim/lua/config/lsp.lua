@@ -66,7 +66,10 @@ vim.lsp.enable({"clojure_lsp"})
 
 vim.lsp.config("clangd", {
     capabilities = capabilities,
-    cmd = {"clangd"},
+    cmd = {
+        "clangd",
+        "--query-driver=/usr/bin/gcc,/usr/bin/g++",
+    },
     filetypes = { "c", "cpp", "objc", "objcpp", "cuda", "proto" },
     -- on_attach = on_attach,
     root_markers = {
