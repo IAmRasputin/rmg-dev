@@ -1,2 +1,2 @@
-For getting a *new* environment up and ready.  Different branches for different machines.
+For getting a *new* environment up and ready.  Different branches for different machines, if necessary.
 

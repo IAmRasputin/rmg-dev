@@ -65,24 +65,25 @@ vim.lsp.config("clojure_lsp", {
 vim.lsp.enable({"clojure_lsp"})
 
 vim.lsp.config("clangd", {
-    capabilities = capabilities,
+--    capabilities = capabilities,
     cmd = {
         "clangd",
-        "--query-driver=/usr/bin/gcc,/usr/bin/g++",
+        "--enable-config",
     },
-    filetypes = { "c", "cpp", "objc", "objcpp", "cuda", "proto" },
-    -- on_attach = on_attach,
-    root_markers = {
-        '.clangd',
-        '.clang-tidy',
-        '.clang-format',
-        'compile_commands.json',
-        'compile_flags.txt',
-        'configure.ac'
-        -- '.git'
-    },
-    single_file_support = true
+--    filetypes = { "c", "cpp", "objc", "objcpp", "cuda", "proto" },
+--    -- on_attach = on_attach,
+--    root_markers = {
+--        '.clangd',
+--        '.clang-tidy',
+--        '.clang-format',
+--        'compile_commands.json',
+--        'compile_flags.txt',
+--        'configure.ac'
+--        -- '.git'
+--    },
+--    single_file_support = true,
 })
+
 vim.lsp.enable({"clangd"})
 
 vim.lsp.config('rust_analyzer', {
